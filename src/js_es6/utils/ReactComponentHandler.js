@@ -8,6 +8,9 @@
  * @param {Object} state state is not required for react components
  */
 
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 export default class ReactComponentHandler {
   constructor(container, state) {
     this._reactComponent = null;

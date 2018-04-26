@@ -15,7 +15,7 @@
   },
   "license": "MIT",
   "author": "deepstreamHub GmbH",
-  "main": "webpack.config.dev.babel.js",
+  "main": "dist/js/goldenlayout.js",
   "typings": "./index.d.ts",
   "directories": {
     "test": "test"
@@ -95,6 +95,8 @@
     "postcss-reporter": "^5.0.0",
     "prettier": "^1.11.1",
     "pug-html-loader": "^1.1.0",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
     "sass-loader": "^6.0.0",
     "script-loader": "^0.7.2",
     "style-loader": "^0.20.1",
@@ -146,5 +148,9 @@
       ]
     }
   ],
-  "npmName": "golden-layout"
+  "npmName": "golden-layout",
+  "peerDependencies": {
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2"
+  }
 }
