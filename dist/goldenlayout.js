@@ -5249,6 +5249,7 @@ lm.utils.ReactComponentHandler = function( container, state ) {
 	this._container = container;
 	this._initialState = state;
 	this._reactClass = this._getReactClass();
+	this._containerReactRoot = null;
 	this._container.on( 'open', this._render, this );
 	this._container.on( 'destroy', this._destroy, this );
 };
@@ -5265,13 +5266,15 @@ lm.utils.copy( lm.utils.ReactComponentHandler.prototype, {
 	 * @returns {void}
 	 */
 	_render: function() {
-		this._reactComponent = ReactDOM.render( this._getReactComponent(), this._container.getElement()[ 0 ] );
-		this._originalComponentWillUpdate = this._reactComponent.componentWillUpdate || function() {
-			};
-		this._reactComponent.componentWillUpdate = this._onUpdate.bind( this );
-		if( this._container.getState() ) {
-			this._reactComponent.setState( this._container.getState() );
-		}
+		// this._reactComponent = ReactDOM.render( this._getReactComponent(), this._container.getElement()[ 0 ] );
+		this._containerReactRoot = ReactDOM.createRoot(this._container.getElement()[ 0 ] );
+		this._containerReactRoot.render(this._getReactComponent());
+		// this._originalComponentWillUpdate = this._reactComponent.componentWillUpdate || function() {
+		// 	};
+		// this._reactComponent.componentWillUpdate = this._onUpdate.bind( this );
+		// if( this._container.getState() ) {
+		// 	this._reactComponent.setState( this._container.getState() );
+		// }
 	},
 
 	/**
@@ -5281,7 +5284,8 @@ lm.utils.copy( lm.utils.ReactComponentHandler.prototype, {
 	 * @returns {void}
 	 */
 	_destroy: function() {
-		ReactDOM.unmountComponentAtNode( this._container.getElement()[ 0 ] );
+		// ReactDOM.unmountComponentAtNode( this._container.getElement()[ 0 ] );
+		this._containerReactRoot.unmount();
 		this._container.off( 'open', this._render, this );
 		this._container.off( 'destroy', this._destroy, this );
 	},
