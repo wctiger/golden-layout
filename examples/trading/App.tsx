@@ -216,7 +216,7 @@ export function App(): ReactNode {
         <button type="button" onClick={() => layout.setLayout(initialLayout)}>
           Reset layout
         </button>
-        <a href="../">Main demo</a>
+        <a href="./simple/">Simple demo</a>
         <RenderMeter />
       </div>
       <div className="trade-layout">

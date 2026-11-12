@@ -256,7 +256,7 @@ export function App(): ReactNode {
             Reset
           </button>
         </span>
-        <a className="demo-link" href="./trading/">
+        <a className="demo-link" href="../">
           Trading desk demo
         </a>
       </div>

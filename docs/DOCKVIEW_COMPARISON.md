@@ -135,6 +135,37 @@ panels from the page, so a panel loses its scroll position and an iframe reloads
 hidden; its documentation says to opt in to `renderer: 'always'` for iframes. This library keeps
 every panel in the page, and keeps its scroll position across tab switches (checked).
 
+## Hidden panels and background work
+
+A dashboard full of live panels spends most of its time updating, and at any moment many panels
+are hidden: inactive tabs, or everything behind a maximized group. **Neither library throttles
+hidden panels.** Both keep their React tree mounted, so a hidden panel re-renders on every data
+update like a visible one. Both give a panel enough to pause itself.
+
+|                                 | This library                                                                                                                  | dockview                                                                                                                                                                                      |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What a hidden panel is          | Still mounted. An inactive tab is `display: none`; a panel behind a maximized stack is `visibility: hidden`                   | Default `onlyWhenVisible`: the panel's element is removed from the page, but its React portal stays mounted. With `renderer: 'always'` it stays in the page, hidden with `visibility: hidden` |
+| Work while hidden               | React renders and effects continue; the browser skips layout and paint for inactive tabs                                      | React renders and effects continue, into a detached element by default; on showing, scroll position is lost and iframes reload                                                                |
+| Built-in throttling             | None                                                                                                                          | None                                                                                                                                                                                          |
+| How a panel learns it is hidden | `usePanelVisible()`: a hook derived from the layout state, correct from the first render, covering inactive tabs and maximize | `api.isVisible`, `api.onDidVisibilityChange` and `api.onDidActiveChange` on the panel; no React hook. Collapsing an edge group fires no visibility event                                      |
+| What dockview's own demo does   |                                                                                                                               | Writes its own `usePanelVisible` and a `VisibilityGate` that unmounts hidden panels, starting optimistic because the first `isVisible` read can race layout                                   |
+
+The ways a panel can opt in are the same with either library. They were measured in
+[the trading desk example](../examples/trading), with the Orders stack maximized so that seven
+of the eight panels were hidden:
+
+| Hidden panels...                                  | Hidden renders per second | Trade-off                                                                                                                                             |
+| ------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| keep rendering (both libraries' default)          | about 11                  | Wasted work grows with the number of hidden panels                                                                                                    |
+| are wrapped in React's `<Activity mode="hidden">` | about 8                   | Keeps state; stops effects such as timers; but React still renders hidden content, at low priority, when shared context changes. React 19.2 and later |
+| are unmounted while hidden                        | 0                         | Loses local state, such as scroll position and inputs, unless it is kept in `usePanelState` or a store                                                |
+| stop subscribing to their data while hidden       | 0                         | Keeps state; needs the data to come from a subscribable store, such as `useSyncExternalStore`, not React context                                      |
+
+For a dashboard, the last pattern is the one to build on: data hooks that take the panel's
+visibility and stop listening while it is false, then catch up on the latest value when shown.
+With this library that is a few lines over `usePanelVisible()`. Because the source is in the
+application, it could also become a library option that wraps hidden panels in `<Activity>`.
+
 ## Customisation and extension
 
 You will build from source, and the dashboard will be changed by both people and coding
@@ -222,6 +253,8 @@ If you choose this library, the first additions worth making are:
 - undo and redo over the action stream;
 - an `overflow` option for panels, so content that manages its own scrolling avoids the extra
   paint;
+- a way for panels to pause while hidden, as described in
+  [Hidden panels and background work](#hidden-panels-and-background-work);
 - touch input, if any user will be on a tablet.
 
 ## Method and limits
