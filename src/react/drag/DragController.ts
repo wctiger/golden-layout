@@ -68,6 +68,7 @@ export function readGeometry(root: HTMLElement, state: LayoutState): LayoutGeome
     : Array.from(root.querySelectorAll<HTMLElement>('.gl-stack'));
   const stacks = elements.map((element) => {
     const header = element.querySelector<HTMLElement>(':scope > .gl-header');
+    const strip = header?.querySelector<HTMLElement>(':scope > .gl-tabs');
     const body = element.querySelector<HTMLElement>(':scope > .gl-stack-content');
     const position = element.dataset.header;
     const id = element.dataset.itemId ?? '';
@@ -76,6 +77,7 @@ export function readGeometry(root: HTMLElement, state: LayoutState): LayoutGeome
       id,
       panelCount: node?.type === 'stack' ? node.children.length : 0,
       header: header ? toRect(header.getBoundingClientRect()) : null,
+      ...(strip && { tabStrip: toRect(strip.getBoundingClientRect()) }),
       headerAxis: position === 'left' || position === 'right' ? ('y' as const) : ('x' as const),
       tabs: header
         ? Array.from(header.querySelectorAll('.gl-tab')).map((tab) =>

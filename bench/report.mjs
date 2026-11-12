@@ -43,6 +43,10 @@ const OVERRIDES = [
     note:
       'measured again after the splitter was changed to resize on release, on the benchmark ' +
       'build plus that one change',
+    text:
+      'Splitter results use the [resize-on-release run](results/supp-splitter.json) for both ' +
+      'versions. Only the splitter marker moves during the drag. Both versions resize the panels ' +
+      'once on release.',
   },
 ];
 const overrides = [
@@ -219,8 +223,9 @@ for (const override of overrides) {
   ];
   out.push('');
   out.push(
-    `The rows for ${replaced.join(', ')} come from \`bench/results/${override.file}\`: ` +
-      `${override.note} (${override.run.meta.samples} samples per cell).`,
+    override.text ??
+      `The rows for ${replaced.join(', ')} come from \`bench/results/${override.file}\`: ` +
+        `${override.note} (${override.run.meta.samples} samples per cell).`,
   );
 }
 

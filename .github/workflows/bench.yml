@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
@@ -36,7 +36,7 @@ jobs:
         run: |
           node bench/run.mjs --cpu 1 --out full-cpu1.json
           node bench/run.mjs --cpu 4 --out full-cpu4.json
-          node bench/report.mjs --out bench/results/REPORT-full.md
+          node bench/report.mjs bench/results/full-cpu1.json bench/results/full-cpu4.json --out bench/results/REPORT-full.md
       - uses: actions/upload-artifact@v4
         with:
           name: benchmark-${{ inputs.mode }}

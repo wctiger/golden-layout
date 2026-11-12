@@ -1,26 +1,17 @@
 ## Reading the results
 
-Across the 72 cells the rewrite is measurably better in 45, measurably more than 10% worse in 12,
-and within noise in the rest. The 12 fall into three groups, each with a cause.
+Across the 72 measured cells, the rewrite is measurably faster in 45 and misses the 10% target
+in 12. The misses are in shared data updates, maximise and restore, and retained memory.
 
-### Splitter drag: resize on release, as legacy does
+### Splitter drag
 
-Both versions move only a marker while the splitter is dragged and resize the panels once, on
-release. The splitter rows are a re-measurement made after the rewrite was changed to work this
-way; the first full run measured an earlier build that resized live on every pointer move.
+The splitter marker follows the pointer through 60 moves. Both versions resize the panels once
+on release. The whole-gesture metric includes the moves and the release.
 
-| 64 panels       | Per move, legacy | Per move, rewrite | On release, legacy | On release, rewrite |
-| --------------- | ---------------- | ----------------- | ------------------ | ------------------- |
-| Unthrottled     | 2.3 ms           | 2.2 ms            | 38.0 ms            | 18.8 ms             |
-| 4x CPU throttle | 12.4 ms          | 9.6 ms            | 228 ms             | 87 ms               |
-
-- No splitter cell is worse than legacy; the rewrite is measurably better at 16 panels, and at 64
-  panels under the throttle.
-- Neither version drops frames during the drag. The release costs the rewrite less than half of
-  what it costs legacy at 16 and 64 panels.
-- The live-resize build, now replaced, was up to 3.7 times slower over the whole gesture and fell
-  to about 30 frames a second with 64 panels under the throttle. That result is why the behaviour
-  was changed.
+The rewrite used 18% less main-thread time at 16 panels unthrottled. With 4x CPU throttling it
+used 24% less at 16 panels and 29% less at 64 panels. The other three comparisons showed no
+measurable difference. At 64 panels under throttle, the rewrite took 9.6 ms per move and 87 ms
+on release, compared with 12.4 ms and 228 ms for legacy.
 
 ### Shared data update: panels are scroll containers (6 cells)
 
@@ -101,7 +92,7 @@ why it reads as worse there. This check is a single run per version.
 
 ## Decision on the missed target
 
-The plan asks for each missed target to be fixed or explicitly accepted. The splitter was fixed by resizing on release.
+The plan asks for each missed target to be fixed or explicitly accepted. The splitter was fixed.
 The 12 cells that remain more than 10% slower (shared-data updates, maximise at 16 and 64 panels,
 and the 50-cycle memory figure) were reviewed with their causes above and accepted as documented
 by the repository owner on 2026-11-12.
@@ -115,15 +106,14 @@ by the repository owner on 2026-11-12.
   target is read as "no late frames at p95".
 - **React commit counts** are not reported. Panel render counts are, which is what the targets use.
 - **Parse and evaluate time** was not measured separately.
-- **What was measured.** Both passes ran on one build: commit `1303bbe`. Later work (the UI
-  enhancements of issue #10, the review fixes, and the change of the splitter to resize on
-  release) is not in these numbers.
+- **What was measured.** The full passes used commit `1303bbe`. The splitter rows use a follow-up
+  on that build with the resize-on-release change and 20 samples per version in each cell.
+  The remaining main-table rows use the full passes.
 - **Legacy baseline.** As planned, legacy is the committed 1.5.9 bundle with its React 18 patch,
   in which automatic panel state capture is disabled.
 
 ## Limits
 
 - One machine, headless Chromium, no GPU. The numbers are comparative, not absolute.
-- The benchmark panel is 40 rows of text. Panels with heavier content shift every figure, and
-  shift the splitter trade-off further toward the deferred resize.
-- The two supplementary runs measured fewer cells and were run after the main passes.
+- The benchmark panel is 40 rows of text. Heavier panel content can change the cost of resizing on release.
+- The supplementary runs covered fewer cells and ran after the full passes.
