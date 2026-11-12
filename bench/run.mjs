@@ -35,7 +35,8 @@ const SIZES = option('sizes', quick ? 'small' : 'small,medium,large').split(',')
 const CPU = option('cpu', quick ? '1' : '1,4')
   .split(',')
   .map(Number);
-const VERSIONS = ['legacy', 'next'];
+// The first version is the baseline the second is compared against.
+const VERSIONS = option('versions', 'legacy,next').split(',');
 const VIEWPORT = { width: 1600, height: 900 };
 
 /* ---------------------------------------------------------------- helpers */
@@ -175,7 +176,11 @@ const scenarios = {
     unit: 'ms',
     async run(page, cdp) {
       const from = await page.evaluate(() => window.bench.splitterPoint());
-      return gesture(page, cdp, from, [{ x: from.x + 300, y: from.y }], 60);
+      const before = await page.evaluate(() => window.bench.stackBody('s0').width);
+      const result = await gesture(page, cdp, from, [{ x: from.x + 300, y: from.y }], 60);
+      // Records whether the drag really resized: a press that misses the splitter costs little.
+      const after = await page.evaluate(() => window.bench.stackBody('s0').width);
+      return { ...result, resized: Math.abs(after - before) > 100 ? 1 : 0 };
     },
   },
   resize: {
@@ -409,6 +414,12 @@ function bundleSizes() {
         join(vendor, 'goldenlayout-dark-theme.css'),
       ),
     },
+    dockview: {
+      js: sized(join(out, 'dockview.js')),
+      css: sized(
+        join(here, '..', 'node_modules', 'dockview-react', 'dist', 'styles', 'dockview.css'),
+      ),
+    },
     next: {
       js: sized(join(out, 'next.js')),
       css: sized(join(here, '..', 'src', 'styles', 'golden-layout.css'), join(themes, 'dark.css')),
@@ -483,6 +494,7 @@ async function main() {
         react: JSON.parse(readFileSync(join(root, 'node_modules/react/package.json'), 'utf8'))
           .version,
         quick,
+        versions: VERSIONS,
       },
       scenarios: Object.fromEntries(
         Object.entries(scenarios).map(([key, value]) => [
@@ -501,7 +513,7 @@ async function main() {
     for (const cpu of CPU) {
       for (const size of SIZES) {
         for (const name of SCENARIOS) {
-          const samples = { legacy: [], next: [] };
+          const samples = Object.fromEntries(VERSIONS.map((version) => [version, []]));
           // Interleaved, so drift in the machine affects both versions alike.
           for (let i = 0; i < WARMUPS + SAMPLES; i++) {
             for (const version of i % 2 ? [...VERSIONS].reverse() : VERSIONS) {
@@ -517,7 +529,7 @@ async function main() {
               50,
             ).toFixed(2);
           console.log(
-            `cpu x${cpu}  ${size.padEnd(6)} ${name.padEnd(9)} legacy ${median('legacy').padStart(9)}  next ${median('next').padStart(9)} ${scenarios[name].unit}`,
+            `cpu x${cpu}  ${size.padEnd(6)} ${name.padEnd(9)} ${VERSIONS.map((version) => `${version} ${median(version).padStart(9)}`).join('  ')} ${scenarios[name].unit}`,
           );
         }
       }

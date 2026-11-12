@@ -130,205 +130,205 @@ Medians, with the 95% confidence interval of the primary metric. "Layouts" is th
 
 | CPU | Size | Version | Median | 95% CI | Script | Layout | Style | Layouts | Panel renders |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 36.0 ms | 33.3 to 37.9 | 6.22 ms | 4.17 ms | 3.03 ms | 34.0 | 4.00 |
-| unthrottled | small | rewrite | 20.8 ms | 19.8 to 23.1 | 10.9 ms | 3.43 ms | 1.34 ms | 2.00 | 4.00 |
-| unthrottled | medium | legacy | 71.3 ms | 66.3 to 78.0 | 11.6 ms | 10.1 ms | 7.23 ms | 99.0 | 16.0 |
-| unthrottled | medium | rewrite | 39.9 ms | 38.5 to 42.7 | 22.8 ms | 6.32 ms | 2.31 ms | 2.00 | 16.0 |
-| unthrottled | large | legacy | 160 ms | 151 to 173 | 24.2 ms | 31.1 ms | 22.4 ms | 516 | 40.5 |
-| unthrottled | large | rewrite | 72.5 ms | 70.9 to 80.4 | 42.7 ms | 12.2 ms | 4.42 ms | 2.00 | 64.0 |
-| 4x CPU throttle | small | legacy | 179 ms | 170 to 186 | 32.2 ms | 20.9 ms | 19.6 ms | 34.0 | 4.00 |
-| 4x CPU throttle | small | rewrite | 110 ms | 107 to 119 | 56.2 ms | 17.2 ms | 7.16 ms | 2.00 | 4.00 |
-| 4x CPU throttle | medium | legacy | 277 ms | 267 to 291 | 33.6 ms | 37.2 ms | 34.9 ms | 97.0 | 4.00 |
-| 4x CPU throttle | medium | rewrite | 184 ms | 166 to 215 | 106 ms | 25.2 ms | 10.8 ms | 2.00 | 16.0 |
-| 4x CPU throttle | large | legacy | 644 ms | 572 to 698 | 34.5 ms | 140 ms | 110 ms | 512 | 5.00 |
-| 4x CPU throttle | large | rewrite | 305 ms | 295 to 315 | 164 ms | 54.8 ms | 20.8 ms | 2.00 | 64.0 |
+| unthrottled | small | Legacy | 36.0 ms | 33.3 to 37.9 | 6.22 ms | 4.17 ms | 3.03 ms | 34.0 | 4.00 |
+| unthrottled | small | Rewrite | 20.8 ms | 19.8 to 23.1 | 10.9 ms | 3.43 ms | 1.34 ms | 2.00 | 4.00 |
+| unthrottled | medium | Legacy | 71.3 ms | 66.3 to 78.0 | 11.6 ms | 10.1 ms | 7.23 ms | 99.0 | 16.0 |
+| unthrottled | medium | Rewrite | 39.9 ms | 38.5 to 42.7 | 22.8 ms | 6.32 ms | 2.31 ms | 2.00 | 16.0 |
+| unthrottled | large | Legacy | 160 ms | 151 to 173 | 24.2 ms | 31.1 ms | 22.4 ms | 516 | 40.5 |
+| unthrottled | large | Rewrite | 72.5 ms | 70.9 to 80.4 | 42.7 ms | 12.2 ms | 4.42 ms | 2.00 | 64.0 |
+| 4x CPU throttle | small | Legacy | 179 ms | 170 to 186 | 32.2 ms | 20.9 ms | 19.6 ms | 34.0 | 4.00 |
+| 4x CPU throttle | small | Rewrite | 110 ms | 107 to 119 | 56.2 ms | 17.2 ms | 7.16 ms | 2.00 | 4.00 |
+| 4x CPU throttle | medium | Legacy | 277 ms | 267 to 291 | 33.6 ms | 37.2 ms | 34.9 ms | 97.0 | 4.00 |
+| 4x CPU throttle | medium | Rewrite | 184 ms | 166 to 215 | 106 ms | 25.2 ms | 10.8 ms | 2.00 | 16.0 |
+| 4x CPU throttle | large | Legacy | 644 ms | 572 to 698 | 34.5 ms | 140 ms | 110 ms | 512 | 5.00 |
+| 4x CPU throttle | large | Rewrite | 305 ms | 295 to 315 | 164 ms | 54.8 ms | 20.8 ms | 2.00 | 64.0 |
 
 ### Splitter drag (whole gesture: 60 moves and release)
 
 | CPU | Size | Version | Median | 95% CI | Per move | Release | Layouts per move | Frame p95 | Dropped frames | Panel renders |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 111 ms | 104 to 131 | 1.69 ms | 8.89 ms | 0.97 | 16.8 ms | 0.00 | 0.00 |
-| unthrottled | small | rewrite | 102 ms | 92.1 to 115 | 1.58 ms | 7.37 ms | 1.00 | 16.8 ms | 0.00 | 0.00 |
-| unthrottled | medium | legacy | 146 ms | 140 to 149 | 2.09 ms | 17.7 ms | 0.97 | 16.8 ms | 0.00 | 0.00 |
-| unthrottled | medium | rewrite | 119 ms | 117 to 125 | 1.81 ms | 11.1 ms | 1.00 | 16.8 ms | 0.00 | 0.00 |
-| unthrottled | large | legacy | 178 ms | 151 to 195 | 2.23 ms | 37.5 ms | 0.97 | 16.8 ms | 0.00 | 0.00 |
-| unthrottled | large | rewrite | 150 ms | 133 to 159 | 2.20 ms | 18.1 ms | 1.00 | 16.7 ms | 0.00 | 0.00 |
-| 4x CPU throttle | small | legacy | 493 ms | 439 to 519 | 7.32 ms | 47.2 ms | 0.97 | 16.7 ms | 0.00 | 0.00 |
-| 4x CPU throttle | small | rewrite | 466 ms | 452 to 494 | 7.03 ms | 42.8 ms | 1.00 | 16.7 ms | 0.00 | 0.00 |
-| 4x CPU throttle | medium | legacy | 725 ms | 694 to 740 | 10.3 ms | 104 ms | 0.97 | 16.7 ms | 0.00 | 1.00 |
-| 4x CPU throttle | medium | rewrite | 554 ms | 517 to 595 | 8.30 ms | 51.8 ms | 1.00 | 16.8 ms | 0.00 | 0.00 |
-| 4x CPU throttle | large | legacy | 936 ms | 912 to 1022 | 12.2 ms | 228 ms | 1.27 | 16.8 ms | 1.00 | 50.0 |
-| 4x CPU throttle | large | rewrite | 669 ms | 571 to 740 | 9.50 ms | 86.6 ms | 1.00 | 16.8 ms | 0.00 | 0.00 |
+| unthrottled | small | Legacy | 111 ms | 104 to 131 | 1.69 ms | 8.89 ms | 0.97 | 16.8 ms | 0.00 | 0.00 |
+| unthrottled | small | Rewrite | 102 ms | 92.1 to 115 | 1.58 ms | 7.37 ms | 1.00 | 16.8 ms | 0.00 | 0.00 |
+| unthrottled | medium | Legacy | 146 ms | 140 to 149 | 2.09 ms | 17.7 ms | 0.97 | 16.8 ms | 0.00 | 0.00 |
+| unthrottled | medium | Rewrite | 119 ms | 117 to 125 | 1.81 ms | 11.1 ms | 1.00 | 16.8 ms | 0.00 | 0.00 |
+| unthrottled | large | Legacy | 178 ms | 151 to 195 | 2.23 ms | 37.5 ms | 0.97 | 16.8 ms | 0.00 | 0.00 |
+| unthrottled | large | Rewrite | 150 ms | 133 to 159 | 2.20 ms | 18.1 ms | 1.00 | 16.7 ms | 0.00 | 0.00 |
+| 4x CPU throttle | small | Legacy | 493 ms | 439 to 519 | 7.32 ms | 47.2 ms | 0.97 | 16.7 ms | 0.00 | 0.00 |
+| 4x CPU throttle | small | Rewrite | 466 ms | 452 to 494 | 7.03 ms | 42.8 ms | 1.00 | 16.7 ms | 0.00 | 0.00 |
+| 4x CPU throttle | medium | Legacy | 725 ms | 694 to 740 | 10.3 ms | 104 ms | 0.97 | 16.7 ms | 0.00 | 1.00 |
+| 4x CPU throttle | medium | Rewrite | 554 ms | 517 to 595 | 8.30 ms | 51.8 ms | 1.00 | 16.8 ms | 0.00 | 0.00 |
+| 4x CPU throttle | large | Legacy | 936 ms | 912 to 1022 | 12.2 ms | 228 ms | 1.27 | 16.8 ms | 1.00 | 50.0 |
+| 4x CPU throttle | large | Rewrite | 669 ms | 571 to 740 | 9.50 ms | 86.6 ms | 1.00 | 16.8 ms | 0.00 | 0.00 |
 
 ### Container resize (per size)
 
 | CPU | Size | Version | Median | 95% CI | Script | Layout | Layouts | Frame p95 | Panel renders |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 6.16 ms | 5.77 to 6.59 | 0.03 ms | 1.61 ms | 18.0 | 16.7 ms | 0.00 |
-| unthrottled | small | rewrite | 3.77 ms | 3.61 to 3.97 | 0.13 ms | 0.79 ms | 2.00 | 16.7 ms | 0.00 |
-| unthrottled | medium | legacy | 11.1 ms | 10.4 to 11.8 | 0.03 ms | 3.13 ms | 40.0 | 16.8 ms | 0.00 |
-| unthrottled | medium | rewrite | 6.63 ms | 6.42 to 7.06 | 0.32 ms | 1.56 ms | 2.00 | 16.7 ms | 0.00 |
-| unthrottled | large | legacy | 35.0 ms | 33.7 to 37.7 | 0.06 ms | 10.5 ms | 190 | 33.3 ms | 1.00 |
-| unthrottled | large | rewrite | 16.8 ms | 16.0 to 17.9 | 0.36 ms | 4.18 ms | 2.00 | 16.8 ms | 0.00 |
-| 4x CPU throttle | small | legacy | 26.2 ms | 24.7 to 28.5 | 0.10 ms | 7.29 ms | 18.0 | 16.8 ms | 0.00 |
-| 4x CPU throttle | small | rewrite | 15.9 ms | 15.0 to 17.3 | 0.48 ms | 3.70 ms | 2.00 | 16.8 ms | 0.00 |
-| 4x CPU throttle | medium | legacy | 51.1 ms | 50.2 to 55.0 | 0.25 ms | 15.0 ms | 40.0 | 50.0 ms | 3.00 |
-| 4x CPU throttle | medium | rewrite | 27.1 ms | 25.7 to 29.0 | 1.25 ms | 6.63 ms | 2.07 | 33.4 ms | 0.00 |
-| 4x CPU throttle | large | legacy | 147 ms | 141 to 150 | 2.64 ms | 42.9 ms | 191 | 150 ms | 49.5 |
-| 4x CPU throttle | large | rewrite | 60.7 ms | 58.4 to 63.1 | 1.23 ms | 14.8 ms | 2.00 | 66.7 ms | 0.00 |
+| unthrottled | small | Legacy | 6.16 ms | 5.77 to 6.59 | 0.03 ms | 1.61 ms | 18.0 | 16.7 ms | 0.00 |
+| unthrottled | small | Rewrite | 3.77 ms | 3.61 to 3.97 | 0.13 ms | 0.79 ms | 2.00 | 16.7 ms | 0.00 |
+| unthrottled | medium | Legacy | 11.1 ms | 10.4 to 11.8 | 0.03 ms | 3.13 ms | 40.0 | 16.8 ms | 0.00 |
+| unthrottled | medium | Rewrite | 6.63 ms | 6.42 to 7.06 | 0.32 ms | 1.56 ms | 2.00 | 16.7 ms | 0.00 |
+| unthrottled | large | Legacy | 35.0 ms | 33.7 to 37.7 | 0.06 ms | 10.5 ms | 190 | 33.3 ms | 1.00 |
+| unthrottled | large | Rewrite | 16.8 ms | 16.0 to 17.9 | 0.36 ms | 4.18 ms | 2.00 | 16.8 ms | 0.00 |
+| 4x CPU throttle | small | Legacy | 26.2 ms | 24.7 to 28.5 | 0.10 ms | 7.29 ms | 18.0 | 16.8 ms | 0.00 |
+| 4x CPU throttle | small | Rewrite | 15.9 ms | 15.0 to 17.3 | 0.48 ms | 3.70 ms | 2.00 | 16.8 ms | 0.00 |
+| 4x CPU throttle | medium | Legacy | 51.1 ms | 50.2 to 55.0 | 0.25 ms | 15.0 ms | 40.0 | 50.0 ms | 3.00 |
+| 4x CPU throttle | medium | Rewrite | 27.1 ms | 25.7 to 29.0 | 1.25 ms | 6.63 ms | 2.07 | 33.4 ms | 0.00 |
+| 4x CPU throttle | large | Legacy | 147 ms | 141 to 150 | 2.64 ms | 42.9 ms | 191 | 150 ms | 49.5 |
+| 4x CPU throttle | large | Rewrite | 60.7 ms | 58.4 to 63.1 | 1.23 ms | 14.8 ms | 2.00 | 66.7 ms | 0.00 |
 
 ### Tab switch (per switch)
 
 | CPU | Size | Version | Median | 95% CI | Script | Layout | Style | Layouts | Panel renders |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 6.26 ms | 6.12 to 7.25 | 0.02 ms | 1.40 ms | 1.24 ms | 191 | 0.00 |
-| unthrottled | small | rewrite | 3.40 ms | 3.32 to 3.69 | 0.76 ms | 0.66 ms | 0.45 ms | 10.0 | 0.00 |
-| unthrottled | medium | legacy | 12.1 ms | 10.9 to 13.3 | 0.02 ms | 2.94 ms | 2.51 ms | 752 | 0.00 |
-| unthrottled | medium | rewrite | 3.44 ms | 3.22 to 3.69 | 0.67 ms | 0.70 ms | 0.46 ms | 15.0 | 0.00 |
-| unthrottled | large | legacy | 36.0 ms | 33.6 to 38.1 | 0.03 ms | 10.5 ms | 8.45 ms | 6463 | 0.00 |
-| unthrottled | large | rewrite | 3.88 ms | 3.78 to 4.19 | 0.58 ms | 0.65 ms | 0.43 ms | 20.0 | 0.00 |
-| 4x CPU throttle | small | legacy | 32.7 ms | 30.7 to 35.0 | 0.07 ms | 7.78 ms | 6.50 ms | 191 | 0.00 |
-| 4x CPU throttle | small | rewrite | 14.0 ms | 13.5 to 14.6 | 3.43 ms | 2.94 ms | 1.98 ms | 10.0 | 0.00 |
-| 4x CPU throttle | medium | legacy | 62.4 ms | 59.0 to 69.6 | 0.55 ms | 15.2 ms | 13.6 ms | 754 | 2.00 |
-| 4x CPU throttle | medium | rewrite | 14.2 ms | 13.4 to 15.5 | 2.90 ms | 3.10 ms | 2.03 ms | 15.0 | 0.00 |
-| 4x CPU throttle | large | legacy | 191 ms | 186 to 211 | 2.89 ms | 56.4 ms | 45.8 ms | 6475 | 29.0 |
-| 4x CPU throttle | large | rewrite | 17.2 ms | 16.1 to 18.1 | 2.66 ms | 2.87 ms | 1.88 ms | 20.0 | 0.00 |
+| unthrottled | small | Legacy | 6.26 ms | 6.12 to 7.25 | 0.02 ms | 1.40 ms | 1.24 ms | 191 | 0.00 |
+| unthrottled | small | Rewrite | 3.40 ms | 3.32 to 3.69 | 0.76 ms | 0.66 ms | 0.45 ms | 10.0 | 0.00 |
+| unthrottled | medium | Legacy | 12.1 ms | 10.9 to 13.3 | 0.02 ms | 2.94 ms | 2.51 ms | 752 | 0.00 |
+| unthrottled | medium | Rewrite | 3.44 ms | 3.22 to 3.69 | 0.67 ms | 0.70 ms | 0.46 ms | 15.0 | 0.00 |
+| unthrottled | large | Legacy | 36.0 ms | 33.6 to 38.1 | 0.03 ms | 10.5 ms | 8.45 ms | 6463 | 0.00 |
+| unthrottled | large | Rewrite | 3.88 ms | 3.78 to 4.19 | 0.58 ms | 0.65 ms | 0.43 ms | 20.0 | 0.00 |
+| 4x CPU throttle | small | Legacy | 32.7 ms | 30.7 to 35.0 | 0.07 ms | 7.78 ms | 6.50 ms | 191 | 0.00 |
+| 4x CPU throttle | small | Rewrite | 14.0 ms | 13.5 to 14.6 | 3.43 ms | 2.94 ms | 1.98 ms | 10.0 | 0.00 |
+| 4x CPU throttle | medium | Legacy | 62.4 ms | 59.0 to 69.6 | 0.55 ms | 15.2 ms | 13.6 ms | 754 | 2.00 |
+| 4x CPU throttle | medium | Rewrite | 14.2 ms | 13.4 to 15.5 | 2.90 ms | 3.10 ms | 2.03 ms | 15.0 | 0.00 |
+| 4x CPU throttle | large | Legacy | 191 ms | 186 to 211 | 2.89 ms | 56.4 ms | 45.8 ms | 6475 | 29.0 |
+| 4x CPU throttle | large | Rewrite | 17.2 ms | 16.1 to 18.1 | 2.66 ms | 2.87 ms | 1.88 ms | 20.0 | 0.00 |
 
 ### Open a panel
 
 | CPU | Size | Version | Median | 95% CI | Script | Layout | Style | Layouts | Panel renders |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 13.4 ms | 12.5 to 15.2 | 1.86 ms | 2.14 ms | 1.75 ms | 34.0 | 1.00 |
-| unthrottled | small | rewrite | 11.8 ms | 11.1 to 12.3 | 2.82 ms | 0.92 ms | 0.57 ms | 2.00 | 1.00 |
-| unthrottled | medium | legacy | 18.5 ms | 17.5 to 19.2 | 0.52 ms | 3.77 ms | 3.06 ms | 67.0 | 1.00 |
-| unthrottled | medium | rewrite | 8.60 ms | 7.87 to 10.2 | 2.92 ms | 0.94 ms | 0.66 ms | 2.00 | 1.00 |
-| unthrottled | large | legacy | 73.2 ms | 68.0 to 93.4 | 4.97 ms | 18.8 ms | 15.1 ms | 371 | 7.00 |
-| unthrottled | large | rewrite | 11.7 ms | 10.8 to 12.2 | 2.39 ms | 1.27 ms | 0.90 ms | 2.00 | 1.00 |
-| 4x CPU throttle | small | legacy | 66.6 ms | 60.5 to 77.6 | 6.25 ms | 12.2 ms | 10.7 ms | 34.0 | 1.00 |
-| 4x CPU throttle | small | rewrite | 35.9 ms | 31.3 to 38.3 | 12.0 ms | 3.93 ms | 2.65 ms | 2.00 | 1.00 |
-| 4x CPU throttle | medium | legacy | 107 ms | 99.6 to 114 | 9.61 ms | 22.7 ms | 17.6 ms | 67.0 | 3.00 |
-| 4x CPU throttle | medium | rewrite | 32.7 ms | 31.0 to 35.0 | 11.8 ms | 3.86 ms | 2.95 ms | 2.00 | 1.00 |
-| 4x CPU throttle | large | legacy | 281 ms | 265 to 302 | 12.4 ms | 79.1 ms | 62.1 ms | 369 | 3.00 |
-| 4x CPU throttle | large | rewrite | 35.7 ms | 32.3 to 37.8 | 7.70 ms | 3.90 ms | 2.89 ms | 2.00 | 1.00 |
+| unthrottled | small | Legacy | 13.4 ms | 12.5 to 15.2 | 1.86 ms | 2.14 ms | 1.75 ms | 34.0 | 1.00 |
+| unthrottled | small | Rewrite | 11.8 ms | 11.1 to 12.3 | 2.82 ms | 0.92 ms | 0.57 ms | 2.00 | 1.00 |
+| unthrottled | medium | Legacy | 18.5 ms | 17.5 to 19.2 | 0.52 ms | 3.77 ms | 3.06 ms | 67.0 | 1.00 |
+| unthrottled | medium | Rewrite | 8.60 ms | 7.87 to 10.2 | 2.92 ms | 0.94 ms | 0.66 ms | 2.00 | 1.00 |
+| unthrottled | large | Legacy | 73.2 ms | 68.0 to 93.4 | 4.97 ms | 18.8 ms | 15.1 ms | 371 | 7.00 |
+| unthrottled | large | Rewrite | 11.7 ms | 10.8 to 12.2 | 2.39 ms | 1.27 ms | 0.90 ms | 2.00 | 1.00 |
+| 4x CPU throttle | small | Legacy | 66.6 ms | 60.5 to 77.6 | 6.25 ms | 12.2 ms | 10.7 ms | 34.0 | 1.00 |
+| 4x CPU throttle | small | Rewrite | 35.9 ms | 31.3 to 38.3 | 12.0 ms | 3.93 ms | 2.65 ms | 2.00 | 1.00 |
+| 4x CPU throttle | medium | Legacy | 107 ms | 99.6 to 114 | 9.61 ms | 22.7 ms | 17.6 ms | 67.0 | 3.00 |
+| 4x CPU throttle | medium | Rewrite | 32.7 ms | 31.0 to 35.0 | 11.8 ms | 3.86 ms | 2.95 ms | 2.00 | 1.00 |
+| 4x CPU throttle | large | Legacy | 281 ms | 265 to 302 | 12.4 ms | 79.1 ms | 62.1 ms | 369 | 3.00 |
+| 4x CPU throttle | large | Rewrite | 35.7 ms | 32.3 to 37.8 | 7.70 ms | 3.90 ms | 2.89 ms | 2.00 | 1.00 |
 
 ### Close panels until a stack collapses
 
 | CPU | Size | Version | Median | 95% CI | Script | Layout | Style | Layouts | Panel renders |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 9.91 ms | 9.56 to 10.3 | 0.04 ms | 1.25 ms | 0.96 ms | 16.0 | 0.00 |
-| unthrottled | small | rewrite | 5.94 ms | 5.70 to 6.17 | 2.56 ms | 0.19 ms | 0.16 ms | 2.00 | 0.00 |
-| unthrottled | medium | legacy | 24.1 ms | 20.7 to 30.2 | 0.07 ms | 5.75 ms | 3.29 ms | 66.0 | 0.00 |
-| unthrottled | medium | rewrite | 9.22 ms | 8.79 to 10.9 | 4.58 ms | 0.31 ms | 0.26 ms | 3.00 | 0.00 |
-| unthrottled | large | legacy | 24.8 ms | 22.5 to 32.1 | 0.18 ms | 4.12 ms | 3.46 ms | 92.0 | 0.00 |
-| unthrottled | large | rewrite | 14.4 ms | 13.2 to 14.7 | 4.56 ms | 0.48 ms | 0.11 ms | 6.00 | 0.00 |
-| 4x CPU throttle | small | legacy | 47.3 ms | 43.4 to 49.0 | 0.03 ms | 7.37 ms | 5.18 ms | 16.0 | 0.00 |
-| 4x CPU throttle | small | rewrite | 26.8 ms | 25.1 to 30.2 | 12.5 ms | 0.98 ms | 1.03 ms | 2.00 | 0.00 |
-| 4x CPU throttle | medium | legacy | 115 ms | 111 to 123 | 5.25 ms | 30.0 ms | 15.9 ms | 68.0 | 2.00 |
-| 4x CPU throttle | medium | rewrite | 35.6 ms | 32.2 to 36.9 | 18.1 ms | 1.37 ms | 1.00 ms | 3.00 | 0.00 |
-| 4x CPU throttle | large | legacy | 179 ms | 166 to 187 | 34.1 ms | 34.2 ms | 22.3 ms | 100 | 18.0 |
-| 4x CPU throttle | large | rewrite | 61.4 ms | 59.2 to 63.3 | 20.7 ms | 2.05 ms | 0.75 ms | 6.00 | 0.00 |
+| unthrottled | small | Legacy | 9.91 ms | 9.56 to 10.3 | 0.04 ms | 1.25 ms | 0.96 ms | 16.0 | 0.00 |
+| unthrottled | small | Rewrite | 5.94 ms | 5.70 to 6.17 | 2.56 ms | 0.19 ms | 0.16 ms | 2.00 | 0.00 |
+| unthrottled | medium | Legacy | 24.1 ms | 20.7 to 30.2 | 0.07 ms | 5.75 ms | 3.29 ms | 66.0 | 0.00 |
+| unthrottled | medium | Rewrite | 9.22 ms | 8.79 to 10.9 | 4.58 ms | 0.31 ms | 0.26 ms | 3.00 | 0.00 |
+| unthrottled | large | Legacy | 24.8 ms | 22.5 to 32.1 | 0.18 ms | 4.12 ms | 3.46 ms | 92.0 | 0.00 |
+| unthrottled | large | Rewrite | 14.4 ms | 13.2 to 14.7 | 4.56 ms | 0.48 ms | 0.11 ms | 6.00 | 0.00 |
+| 4x CPU throttle | small | Legacy | 47.3 ms | 43.4 to 49.0 | 0.03 ms | 7.37 ms | 5.18 ms | 16.0 | 0.00 |
+| 4x CPU throttle | small | Rewrite | 26.8 ms | 25.1 to 30.2 | 12.5 ms | 0.98 ms | 1.03 ms | 2.00 | 0.00 |
+| 4x CPU throttle | medium | Legacy | 115 ms | 111 to 123 | 5.25 ms | 30.0 ms | 15.9 ms | 68.0 | 2.00 |
+| 4x CPU throttle | medium | Rewrite | 35.6 ms | 32.2 to 36.9 | 18.1 ms | 1.37 ms | 1.00 ms | 3.00 | 0.00 |
+| 4x CPU throttle | large | Legacy | 179 ms | 166 to 187 | 34.1 ms | 34.2 ms | 22.3 ms | 100 | 18.0 |
+| 4x CPU throttle | large | Rewrite | 61.4 ms | 59.2 to 63.3 | 20.7 ms | 2.05 ms | 0.75 ms | 6.00 | 0.00 |
 
 ### Re-dock drag (whole gesture: 60 moves and drop)
 
 | CPU | Size | Version | Median | 95% CI | Per move | Release | Layouts per move | Frame p95 | Dropped frames | Panel renders |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 215 ms | 207 to 225 | 3.35 ms | 16.3 ms | 2.57 | 16.7 ms | 0.00 | 0.00 |
-| unthrottled | small | rewrite | 189 ms | 178 to 201 | 2.94 ms | 10.5 ms | 2.00 | 16.7 ms | 0.00 | 0.00 |
-| unthrottled | medium | legacy | 285 ms | 271 to 299 | 4.16 ms | 37.0 ms | 4.07 | 16.7 ms | 0.00 | 0.00 |
-| unthrottled | medium | rewrite | 221 ms | 191 to 227 | 3.41 ms | 15.2 ms | 2.00 | 16.7 ms | 0.00 | 0.00 |
-| unthrottled | large | legacy | 325 ms | 297 to 361 | 4.32 ms | 59.7 ms | 10.8 | 16.8 ms | 1.00 | 0.00 |
-| unthrottled | large | rewrite | 218 ms | 194 to 240 | 3.24 ms | 21.4 ms | 1.92 | 16.8 ms | 0.00 | 0.00 |
-| 4x CPU throttle | small | legacy | 696 ms | 639 to 776 | 10.7 ms | 62.4 ms | 2.57 | 16.8 ms | 1.00 | 0.00 |
-| 4x CPU throttle | small | rewrite | 617 ms | 559 to 674 | 9.56 ms | 43.6 ms | 2.00 | 16.7 ms | 0.00 | 0.00 |
-| 4x CPU throttle | medium | legacy | 914 ms | 816 to 975 | 13.1 ms | 118 ms | 4.08 | 16.8 ms | 1.00 | 0.00 |
-| 4x CPU throttle | medium | rewrite | 656 ms | 600 to 712 | 10.1 ms | 52.6 ms | 2.00 | 16.8 ms | 1.00 | 0.00 |
-| 4x CPU throttle | large | legacy | 1338 ms | 1250 to 1420 | 16.0 ms | 351 ms | 3.22 | 16.7 ms | 0.00 | 46.0 |
-| 4x CPU throttle | large | rewrite | 894 ms | 785 to 915 | 12.9 ms | 98.1 ms | 1.92 | 16.8 ms | 1.00 | 0.00 |
+| unthrottled | small | Legacy | 215 ms | 207 to 225 | 3.35 ms | 16.3 ms | 2.57 | 16.7 ms | 0.00 | 0.00 |
+| unthrottled | small | Rewrite | 189 ms | 178 to 201 | 2.94 ms | 10.5 ms | 2.00 | 16.7 ms | 0.00 | 0.00 |
+| unthrottled | medium | Legacy | 285 ms | 271 to 299 | 4.16 ms | 37.0 ms | 4.07 | 16.7 ms | 0.00 | 0.00 |
+| unthrottled | medium | Rewrite | 221 ms | 191 to 227 | 3.41 ms | 15.2 ms | 2.00 | 16.7 ms | 0.00 | 0.00 |
+| unthrottled | large | Legacy | 325 ms | 297 to 361 | 4.32 ms | 59.7 ms | 10.8 | 16.8 ms | 1.00 | 0.00 |
+| unthrottled | large | Rewrite | 218 ms | 194 to 240 | 3.24 ms | 21.4 ms | 1.92 | 16.8 ms | 0.00 | 0.00 |
+| 4x CPU throttle | small | Legacy | 696 ms | 639 to 776 | 10.7 ms | 62.4 ms | 2.57 | 16.8 ms | 1.00 | 0.00 |
+| 4x CPU throttle | small | Rewrite | 617 ms | 559 to 674 | 9.56 ms | 43.6 ms | 2.00 | 16.7 ms | 0.00 | 0.00 |
+| 4x CPU throttle | medium | Legacy | 914 ms | 816 to 975 | 13.1 ms | 118 ms | 4.08 | 16.8 ms | 1.00 | 0.00 |
+| 4x CPU throttle | medium | Rewrite | 656 ms | 600 to 712 | 10.1 ms | 52.6 ms | 2.00 | 16.8 ms | 1.00 | 0.00 |
+| 4x CPU throttle | large | Legacy | 1338 ms | 1250 to 1420 | 16.0 ms | 351 ms | 3.22 | 16.7 ms | 0.00 | 46.0 |
+| 4x CPU throttle | large | Rewrite | 894 ms | 785 to 915 | 12.9 ms | 98.1 ms | 1.92 | 16.8 ms | 1.00 | 0.00 |
 
 ### Maximise and restore
 
 | CPU | Size | Version | Median | 95% CI | Script | Layout | Style | Layouts | Panel renders |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 12.9 ms | 12.3 to 14.4 | 0.04 ms | 2.23 ms | 1.63 ms | 14.0 | 0.00 |
-| unthrottled | small | rewrite | 13.8 ms | 12.9 to 15.1 | 3.67 ms | 1.99 ms | 1.61 ms | 4.00 | 0.00 |
-| unthrottled | medium | legacy | 11.3 ms | 10.5 to 12.5 | 0.03 ms | 2.29 ms | 1.57 ms | 21.0 | 0.00 |
-| unthrottled | medium | rewrite | 15.2 ms | 14.7 to 16.4 | 3.05 ms | 3.16 ms | 2.22 ms | 4.00 | 0.00 |
-| unthrottled | large | legacy | 18.5 ms | 17.6 to 21.2 | 0.23 ms | 3.36 ms | 2.64 ms | 40.0 | 0.00 |
-| unthrottled | large | rewrite | 38.0 ms | 34.1 to 42.0 | 3.54 ms | 9.12 ms | 7.04 ms | 6.00 | 0.00 |
-| 4x CPU throttle | small | legacy | 45.3 ms | 40.5 to 49.0 | 0.03 ms | 9.31 ms | 5.93 ms | 14.0 | 0.00 |
-| 4x CPU throttle | small | rewrite | 50.1 ms | 43.8 to 63.5 | 13.4 ms | 9.17 ms | 6.04 ms | 4.00 | 0.00 |
-| 4x CPU throttle | medium | legacy | 55.9 ms | 49.2 to 65.8 | 2.99 ms | 13.0 ms | 8.25 ms | 21.0 | 0.50 |
-| 4x CPU throttle | medium | rewrite | 65.9 ms | 62.9 to 71.7 | 12.8 ms | 15.1 ms | 9.87 ms | 4.00 | 0.00 |
-| 4x CPU throttle | large | legacy | 108 ms | 96.5 to 115 | 20.6 ms | 20.8 ms | 13.8 ms | 42.0 | 8.00 |
-| 4x CPU throttle | large | rewrite | 149 ms | 143 to 156 | 13.2 ms | 38.6 ms | 26.6 ms | 6.00 | 0.00 |
+| unthrottled | small | Legacy | 12.9 ms | 12.3 to 14.4 | 0.04 ms | 2.23 ms | 1.63 ms | 14.0 | 0.00 |
+| unthrottled | small | Rewrite | 13.8 ms | 12.9 to 15.1 | 3.67 ms | 1.99 ms | 1.61 ms | 4.00 | 0.00 |
+| unthrottled | medium | Legacy | 11.3 ms | 10.5 to 12.5 | 0.03 ms | 2.29 ms | 1.57 ms | 21.0 | 0.00 |
+| unthrottled | medium | Rewrite | 15.2 ms | 14.7 to 16.4 | 3.05 ms | 3.16 ms | 2.22 ms | 4.00 | 0.00 |
+| unthrottled | large | Legacy | 18.5 ms | 17.6 to 21.2 | 0.23 ms | 3.36 ms | 2.64 ms | 40.0 | 0.00 |
+| unthrottled | large | Rewrite | 38.0 ms | 34.1 to 42.0 | 3.54 ms | 9.12 ms | 7.04 ms | 6.00 | 0.00 |
+| 4x CPU throttle | small | Legacy | 45.3 ms | 40.5 to 49.0 | 0.03 ms | 9.31 ms | 5.93 ms | 14.0 | 0.00 |
+| 4x CPU throttle | small | Rewrite | 50.1 ms | 43.8 to 63.5 | 13.4 ms | 9.17 ms | 6.04 ms | 4.00 | 0.00 |
+| 4x CPU throttle | medium | Legacy | 55.9 ms | 49.2 to 65.8 | 2.99 ms | 13.0 ms | 8.25 ms | 21.0 | 0.50 |
+| 4x CPU throttle | medium | Rewrite | 65.9 ms | 62.9 to 71.7 | 12.8 ms | 15.1 ms | 9.87 ms | 4.00 | 0.00 |
+| 4x CPU throttle | large | Legacy | 108 ms | 96.5 to 115 | 20.6 ms | 20.8 ms | 13.8 ms | 42.0 | 8.00 |
+| 4x CPU throttle | large | Rewrite | 149 ms | 143 to 156 | 13.2 ms | 38.6 ms | 26.6 ms | 6.00 | 0.00 |
 
 ### Shared data update (per update, all panels)
 
 | CPU | Size | Version | Median | 95% CI | Script | Layout | Style | Layouts | Panel renders |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 3.58 ms | 3.47 to 3.76 | 0.48 ms | 1.18 ms | 0.00 ms | 99.0 | 400 |
-| unthrottled | small | rewrite | 4.64 ms | 4.50 to 4.91 | 0.57 ms | 1.47 ms | 0.00 ms | 99.0 | 400 |
-| unthrottled | medium | legacy | 6.54 ms | 6.23 to 6.97 | 1.24 ms | 1.99 ms | 0.00 ms | 99.0 | 1600 |
-| unthrottled | medium | rewrite | 8.86 ms | 8.63 to 9.08 | 1.44 ms | 2.65 ms | 0.00 ms | 99.0 | 1600 |
-| unthrottled | large | legacy | 14.0 ms | 13.7 to 14.9 | 4.13 ms | 4.78 ms | 0.00 ms | 100 | 6400 |
-| unthrottled | large | rewrite | 21.1 ms | 20.0 to 22.1 | 4.90 ms | 5.88 ms | 0.00 ms | 99.0 | 6400 |
-| 4x CPU throttle | small | legacy | 14.5 ms | 13.7 to 15.2 | 2.04 ms | 5.13 ms | 0.00 ms | 99.0 | 400 |
-| 4x CPU throttle | small | rewrite | 17.7 ms | 17.4 to 18.2 | 2.24 ms | 6.31 ms | 0.00 ms | 99.0 | 400 |
-| 4x CPU throttle | medium | legacy | 22.5 ms | 21.7 to 23.3 | 4.68 ms | 7.80 ms | 0.96 ms | 101 | 1600 |
-| 4x CPU throttle | medium | rewrite | 33.5 ms | 32.6 to 33.8 | 5.59 ms | 10.7 ms | 0.00 ms | 99.0 | 1600 |
-| 4x CPU throttle | large | legacy | 52.4 ms | 51.7 to 55.0 | 16.0 ms | 16.9 ms | 12.6 ms | 124 | 5249 |
-| 4x CPU throttle | large | rewrite | 98.7 ms | 97.2 to 104 | 25.1 ms | 26.9 ms | 0.00 ms | 99.0 | 6400 |
+| unthrottled | small | Legacy | 3.58 ms | 3.47 to 3.76 | 0.48 ms | 1.18 ms | 0.00 ms | 99.0 | 400 |
+| unthrottled | small | Rewrite | 4.64 ms | 4.50 to 4.91 | 0.57 ms | 1.47 ms | 0.00 ms | 99.0 | 400 |
+| unthrottled | medium | Legacy | 6.54 ms | 6.23 to 6.97 | 1.24 ms | 1.99 ms | 0.00 ms | 99.0 | 1600 |
+| unthrottled | medium | Rewrite | 8.86 ms | 8.63 to 9.08 | 1.44 ms | 2.65 ms | 0.00 ms | 99.0 | 1600 |
+| unthrottled | large | Legacy | 14.0 ms | 13.7 to 14.9 | 4.13 ms | 4.78 ms | 0.00 ms | 100 | 6400 |
+| unthrottled | large | Rewrite | 21.1 ms | 20.0 to 22.1 | 4.90 ms | 5.88 ms | 0.00 ms | 99.0 | 6400 |
+| 4x CPU throttle | small | Legacy | 14.5 ms | 13.7 to 15.2 | 2.04 ms | 5.13 ms | 0.00 ms | 99.0 | 400 |
+| 4x CPU throttle | small | Rewrite | 17.7 ms | 17.4 to 18.2 | 2.24 ms | 6.31 ms | 0.00 ms | 99.0 | 400 |
+| 4x CPU throttle | medium | Legacy | 22.5 ms | 21.7 to 23.3 | 4.68 ms | 7.80 ms | 0.96 ms | 101 | 1600 |
+| 4x CPU throttle | medium | Rewrite | 33.5 ms | 32.6 to 33.8 | 5.59 ms | 10.7 ms | 0.00 ms | 99.0 | 1600 |
+| 4x CPU throttle | large | Legacy | 52.4 ms | 51.7 to 55.0 | 16.0 ms | 16.9 ms | 12.6 ms | 124 | 5249 |
+| 4x CPU throttle | large | Rewrite | 98.7 ms | 97.2 to 104 | 25.1 ms | 26.9 ms | 0.00 ms | 99.0 | 6400 |
 
 ### Panel-local update (per update, one panel)
 
 | CPU | Size | Version | Median | 95% CI | Script | Layout | Style | Layouts | Panel renders |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 0.91 ms | 0.85 to 1.02 | 0.22 ms | 0.09 ms | 0.00 ms | 100 | 100 |
-| unthrottled | small | rewrite | 1.02 ms | 0.88 to 1.14 | 0.26 ms | 0.10 ms | 0.00 ms | 100 | 100 |
-| unthrottled | medium | legacy | 1.05 ms | 0.91 to 1.12 | 0.23 ms | 0.09 ms | 0.00 ms | 100 | 100 |
-| unthrottled | medium | rewrite | 1.06 ms | 0.95 to 1.16 | 0.26 ms | 0.11 ms | 0.00 ms | 100 | 100 |
-| unthrottled | large | legacy | 1.26 ms | 1.03 to 1.35 | 0.23 ms | 0.10 ms | 0.00 ms | 100 | 100 |
-| unthrottled | large | rewrite | 1.21 ms | 1.10 to 1.33 | 0.25 ms | 0.10 ms | 0.00 ms | 100 | 100 |
-| 4x CPU throttle | small | legacy | 3.39 ms | 2.98 to 3.54 | 0.80 ms | 0.21 ms | 0.00 ms | 100 | 100 |
-| 4x CPU throttle | small | rewrite | 3.48 ms | 3.19 to 3.72 | 0.93 ms | 0.23 ms | 0.00 ms | 100 | 100 |
-| 4x CPU throttle | medium | legacy | 3.85 ms | 3.69 to 4.25 | 0.93 ms | 0.25 ms | 1.37 ms | 101 | 101 |
-| 4x CPU throttle | medium | rewrite | 3.45 ms | 3.13 to 3.80 | 0.88 ms | 0.21 ms | 0.00 ms | 100 | 100 |
-| 4x CPU throttle | large | legacy | 6.09 ms | 5.92 to 6.43 | 1.63 ms | 0.53 ms | 10.6 ms | 105 | 141 |
-| 4x CPU throttle | large | rewrite | 5.40 ms | 5.02 to 5.68 | 1.08 ms | 0.30 ms | 0.00 ms | 100 | 100 |
+| unthrottled | small | Legacy | 0.91 ms | 0.85 to 1.02 | 0.22 ms | 0.09 ms | 0.00 ms | 100 | 100 |
+| unthrottled | small | Rewrite | 1.02 ms | 0.88 to 1.14 | 0.26 ms | 0.10 ms | 0.00 ms | 100 | 100 |
+| unthrottled | medium | Legacy | 1.05 ms | 0.91 to 1.12 | 0.23 ms | 0.09 ms | 0.00 ms | 100 | 100 |
+| unthrottled | medium | Rewrite | 1.06 ms | 0.95 to 1.16 | 0.26 ms | 0.11 ms | 0.00 ms | 100 | 100 |
+| unthrottled | large | Legacy | 1.26 ms | 1.03 to 1.35 | 0.23 ms | 0.10 ms | 0.00 ms | 100 | 100 |
+| unthrottled | large | Rewrite | 1.21 ms | 1.10 to 1.33 | 0.25 ms | 0.10 ms | 0.00 ms | 100 | 100 |
+| 4x CPU throttle | small | Legacy | 3.39 ms | 2.98 to 3.54 | 0.80 ms | 0.21 ms | 0.00 ms | 100 | 100 |
+| 4x CPU throttle | small | Rewrite | 3.48 ms | 3.19 to 3.72 | 0.93 ms | 0.23 ms | 0.00 ms | 100 | 100 |
+| 4x CPU throttle | medium | Legacy | 3.85 ms | 3.69 to 4.25 | 0.93 ms | 0.25 ms | 1.37 ms | 101 | 101 |
+| 4x CPU throttle | medium | Rewrite | 3.45 ms | 3.13 to 3.80 | 0.88 ms | 0.21 ms | 0.00 ms | 100 | 100 |
+| 4x CPU throttle | large | Legacy | 6.09 ms | 5.92 to 6.43 | 1.63 ms | 0.53 ms | 10.6 ms | 105 | 141 |
+| 4x CPU throttle | large | Rewrite | 5.40 ms | 5.02 to 5.68 | 1.08 ms | 0.30 ms | 0.00 ms | 100 | 100 |
 
 ### Serialize the layout 1,000 times
 
 | CPU | Size | Version | Median | 95% CI |
 | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 7.35 ms | 6.85 to 9.30 |
-| unthrottled | small | rewrite | 5.50 ms | 3.85 to 5.70 |
-| unthrottled | medium | legacy | 12.4 ms | 11.8 to 14.1 |
-| unthrottled | medium | rewrite | 4.30 ms | 4.10 to 4.70 |
-| unthrottled | large | legacy | 28.0 ms | 27.6 to 32.1 |
-| unthrottled | large | rewrite | 12.1 ms | 11.2 to 14.7 |
-| 4x CPU throttle | small | legacy | 29.9 ms | 27.1 to 33.2 |
-| 4x CPU throttle | small | rewrite | 12.9 ms | 11.1 to 13.6 |
-| 4x CPU throttle | medium | legacy | 48.9 ms | 47.0 to 55.9 |
-| 4x CPU throttle | medium | rewrite | 17.2 ms | 15.9 to 19.0 |
-| 4x CPU throttle | large | legacy | 124 ms | 116 to 130 |
-| 4x CPU throttle | large | rewrite | 48.0 ms | 46.4 to 51.6 |
+| unthrottled | small | Legacy | 7.35 ms | 6.85 to 9.30 |
+| unthrottled | small | Rewrite | 5.50 ms | 3.85 to 5.70 |
+| unthrottled | medium | Legacy | 12.4 ms | 11.8 to 14.1 |
+| unthrottled | medium | Rewrite | 4.30 ms | 4.10 to 4.70 |
+| unthrottled | large | Legacy | 28.0 ms | 27.6 to 32.1 |
+| unthrottled | large | Rewrite | 12.1 ms | 11.2 to 14.7 |
+| 4x CPU throttle | small | Legacy | 29.9 ms | 27.1 to 33.2 |
+| 4x CPU throttle | small | Rewrite | 12.9 ms | 11.1 to 13.6 |
+| 4x CPU throttle | medium | Legacy | 48.9 ms | 47.0 to 55.9 |
+| 4x CPU throttle | medium | Rewrite | 17.2 ms | 15.9 to 19.0 |
+| 4x CPU throttle | large | Legacy | 124 ms | 116 to 130 |
+| 4x CPU throttle | large | Rewrite | 48.0 ms | 46.4 to 51.6 |
 
 ### Mount and destroy 50 times (heap growth)
 
 | CPU | Size | Version | Median | 95% CI | Time per cycle | Leaked nodes | Leaked listeners |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| unthrottled | small | legacy | 157 kB | 157 to 158 | 16.5 ms | 0.00 | 0.00 |
-| unthrottled | small | rewrite | 170 kB | 170 to 170 | 9.34 ms | 0.00 | 0.00 |
-| unthrottled | medium | legacy | 162 kB | 161 to 163 | 35.7 ms | 0.00 | 0.00 |
-| unthrottled | medium | rewrite | 187 kB | 186 to 188 | 19.1 ms | 0.00 | 0.00 |
-| unthrottled | large | legacy | 132 kB | 131 to 134 | 99.0 ms | 0.00 | 0.00 |
-| unthrottled | large | rewrite | 181 kB | 181 to 182 | 44.2 ms | 0.00 | 0.00 |
-| 4x CPU throttle | small | legacy | 166 kB | 166 to 169 | 61.4 ms | 0.00 | 0.00 |
-| 4x CPU throttle | small | rewrite | 174 kB | 173 to 174 | 39.6 ms | 0.00 | 0.00 |
-| 4x CPU throttle | medium | legacy | 186 kB | 185 to 187 | 115 ms | 0.00 | 0.00 |
-| 4x CPU throttle | medium | rewrite | 186 kB | 185 to 187 | 66.1 ms | 0.00 | 0.00 |
-| 4x CPU throttle | large | legacy | 149 kB | 148 to 152 | 417 ms | 0.00 | 0.00 |
-| 4x CPU throttle | large | rewrite | 186 kB | 185 to 186 | 191 ms | 0.00 | 0.00 |
+| unthrottled | small | Legacy | 157 kB | 157 to 158 | 16.5 ms | 0.00 | 0.00 |
+| unthrottled | small | Rewrite | 170 kB | 170 to 170 | 9.34 ms | 0.00 | 0.00 |
+| unthrottled | medium | Legacy | 162 kB | 161 to 163 | 35.7 ms | 0.00 | 0.00 |
+| unthrottled | medium | Rewrite | 187 kB | 186 to 188 | 19.1 ms | 0.00 | 0.00 |
+| unthrottled | large | Legacy | 132 kB | 131 to 134 | 99.0 ms | 0.00 | 0.00 |
+| unthrottled | large | Rewrite | 181 kB | 181 to 182 | 44.2 ms | 0.00 | 0.00 |
+| 4x CPU throttle | small | Legacy | 166 kB | 166 to 169 | 61.4 ms | 0.00 | 0.00 |
+| 4x CPU throttle | small | Rewrite | 174 kB | 173 to 174 | 39.6 ms | 0.00 | 0.00 |
+| 4x CPU throttle | medium | Legacy | 186 kB | 185 to 187 | 115 ms | 0.00 | 0.00 |
+| 4x CPU throttle | medium | Rewrite | 186 kB | 185 to 187 | 66.1 ms | 0.00 | 0.00 |
+| 4x CPU throttle | large | Legacy | 149 kB | 148 to 152 | 417 ms | 0.00 | 0.00 |
+| 4x CPU throttle | large | Rewrite | 186 kB | 185 to 186 | 191 ms | 0.00 | 0.00 |
 
 ## Reading the results
 

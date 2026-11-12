@@ -39,7 +39,7 @@ export function expand(spec: BenchSpec): SpecStack[][] {
 
 /** What both pages expose on `window.bench`, so each scenario is written once. */
 export interface BenchDriver {
-  version: 'legacy' | 'next';
+  version: 'legacy' | 'next' | 'dockview';
   mount(specName: string): Promise<void>;
   destroy(): void;
   resize(width: number, height: number): void;
