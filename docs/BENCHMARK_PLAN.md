@@ -2,6 +2,9 @@
 
 Companion to [REWRITE_PLAN.md](./REWRITE_PLAN.md).
 
+> **Status: run.** Results and analysis are in [bench/REPORT.md](../bench/REPORT.md), including the
+> points where the run departed from this plan.
+
 ## Purpose
 
 Show, with numbers, how the React rewrite compares with the legacy jQuery version on the things a user feels: load, interaction smoothness, memory and download size. The benchmark also guards the rewrite against regressions while it is being built.
@@ -93,12 +96,12 @@ A miss is recorded in the report with a cause, and either fixed or accepted expl
 
 ## Sequencing
 
-- [ ] **A. Preserve the baseline.** Tag and vendor the legacy files. Must happen before rewrite phase 1.
-- [ ] **B. Harness and legacy numbers.** Build the runner, the shared panel component, the fixture generator and the legacy page. Record legacy results. Can run alongside rewrite phases 2 and 3.
-- [ ] **C. Rewrite page, non-drag scenarios.** Add the `next` page after rewrite phase 4 and run scenarios 1, 3 to 6 and 8 to 12.
-- [ ] **D. Drag scenarios.** Add scenarios 2 and 7 after rewrite phase 5.
-- [ ] **E. Full report.** Run everything at both CPU settings, write `bench/REPORT.md`, and resolve any missed target.
-- [ ] **F. CI.** A manually triggered GitHub Actions job that runs the quick benchmark and uploads the report. It does not gate merges, because shared runners are too noisy for timing thresholds.
+- [x] **A. Preserve the baseline.** Tag and vendor the legacy files. Must happen before rewrite phase 1.
+- [x] **B. Harness and legacy numbers.** Build the runner, the shared panel component, the fixture generator and the legacy page. Record legacy results. Can run alongside rewrite phases 2 and 3.
+- [x] **C. Rewrite page, non-drag scenarios.** Add the `next` page after rewrite phase 4 and run scenarios 1, 3 to 6 and 8 to 12.
+- [x] **D. Drag scenarios.** Add scenarios 2 and 7 after rewrite phase 5.
+- [x] **E. Full report.** Run everything at both CPU settings, write `bench/REPORT.md`, and resolve any missed target.
+- [x] **F. CI.** A manually triggered GitHub Actions job that runs the quick benchmark and uploads the report. It does not gate merges, because shared runners are too noisy for timing thresholds.
 
 ## Limits
 
