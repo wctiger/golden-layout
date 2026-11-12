@@ -61,16 +61,30 @@ describe('drop-zone geometry', () => {
   it('targets a tab position over a header, with a marker at the insertion edge', () => {
     const target = findDropTarget(geometry, { x: 500, y: 14 });
     expect(target?.place).toEqual({ kind: 'tab', stackId: 'right', index: 1 });
-    expect(target?.highlight).toEqual(rect(450, 0, 60, 20));
+    expect(target?.highlight).toEqual(rect(480, 0, 2, 20));
 
     const end = findDropTarget(geometry, { x: 780, y: 14 });
     expect(end?.place).toEqual({ kind: 'tab', stackId: 'right', index: 2 });
-    expect(end?.highlight.left).toBe(530);
+    expect(end?.highlight).toEqual(rect(560, 0, 60, 20));
 
     // At the start of the strip the marker stays inside the header instead of hanging off it.
     const first = findDropTarget(geometry, { x: 405, y: 14 });
     expect(first?.place).toEqual({ kind: 'tab', stackId: 'right', index: 0 });
-    expect(first?.highlight).toEqual(rect(400, 0, 60, 20));
+    expect(first?.highlight).toEqual(rect(400, 0, 2, 20));
+  });
+
+  it('starts the append marker after a vertical tab and stops it before the controls', () => {
+    const vertical: StackGeometry = {
+      ...stack('left', 0),
+      header: rect(0, 0, 20, 200),
+      tabStrip: rect(0, 0, 20, 100),
+      headerAxis: 'y',
+      tabs: [rect(0, 0, 20, 80)],
+      panelCount: 1,
+    };
+    const target = findDropTarget({ ...geometry, stacks: [vertical] }, { x: 10, y: 90 });
+    expect(target?.place).toEqual({ kind: 'tab', stackId: 'left', index: 1 });
+    expect(target?.highlight).toEqual(rect(0, 80, 20, 20));
   });
 
   it('targets a side of the stack under the pointer over a body', () => {
