@@ -49,7 +49,8 @@ export interface DropTarget {
 
 /** Width of the strip along each edge of the layout that docks against the root item. */
 export const ROOT_EDGE = 12;
-const TAB_MARKER = 4;
+/** Length of the marker that shows where a tab dropped on a header will go. */
+export const TAB_MARKER = 60;
 
 export function contains(rect: Rect, point: Point): boolean {
   return (
@@ -105,9 +106,14 @@ function tabMarker(stack: StackGeometry, header: Rect, index: number): Rect {
   if (next) edge = horizontal ? next.left : next.top;
   else if (last) edge = horizontal ? last.left + last.width : last.top + last.height;
   else edge = horizontal ? header.left : header.top;
+  // Centred on the insertion edge, but kept inside the header at either end of the strip.
+  const start = horizontal ? header.left : header.top;
+  const length = horizontal ? header.width : header.height;
+  const size = Math.min(TAB_MARKER, length);
+  const from = Math.max(start, Math.min(edge - size / 2, start + length - size));
   return horizontal
-    ? { left: edge - TAB_MARKER / 2, top: header.top, width: TAB_MARKER, height: header.height }
-    : { left: header.left, top: edge - TAB_MARKER / 2, width: header.width, height: TAB_MARKER };
+    ? { left: from, top: header.top, width: size, height: header.height }
+    : { left: header.left, top: from, width: header.width, height: size };
 }
 
 function rootEdge(root: Rect, point: Point): Side | null {

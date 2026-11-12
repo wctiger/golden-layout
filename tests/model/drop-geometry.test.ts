@@ -61,11 +61,16 @@ describe('drop-zone geometry', () => {
   it('targets a tab position over a header, with a marker at the insertion edge', () => {
     const target = findDropTarget(geometry, { x: 500, y: 14 });
     expect(target?.place).toEqual({ kind: 'tab', stackId: 'right', index: 1 });
-    expect(target?.highlight).toEqual(rect(478, 0, 4, 20));
+    expect(target?.highlight).toEqual(rect(450, 0, 60, 20));
 
     const end = findDropTarget(geometry, { x: 780, y: 14 });
     expect(end?.place).toEqual({ kind: 'tab', stackId: 'right', index: 2 });
-    expect(end?.highlight.left).toBe(558);
+    expect(end?.highlight.left).toBe(530);
+
+    // At the start of the strip the marker stays inside the header instead of hanging off it.
+    const first = findDropTarget(geometry, { x: 405, y: 14 });
+    expect(first?.place).toEqual({ kind: 'tab', stackId: 'right', index: 0 });
+    expect(first?.highlight).toEqual(rect(400, 0, 60, 20));
   });
 
   it('targets a side of the stack under the pointer over a body', () => {
