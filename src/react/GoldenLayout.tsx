@@ -79,6 +79,23 @@ function useShallowStable<T extends object>(value: T): T {
   return value;
 }
 
+interface ChangeNotifierProps {
+  layout: Layout;
+  callbacks: { current: { onChange: GoldenLayoutProps['onChange'] } };
+}
+
+/**
+ * Forwards layout changes to `onChange`. It is rendered before the panels and subscribes in
+ * a layout effect, so it is listening before any panel's mount effect can dispatch.
+ */
+function ChangeNotifier({ layout, callbacks }: ChangeNotifierProps): ReactNode {
+  useLayoutEffect(
+    () => layout.subscribe((state, action) => callbacks.current.onChange?.(state, action)),
+    [layout, callbacks],
+  );
+  return null;
+}
+
 /** Re-lays the panels over their slots after every commit that follows a layout change. */
 function Positioner(): ReactNode {
   const { layout, view } = useLayoutContext();
@@ -122,11 +139,6 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
     useLayoutEffect(() => {
       callbacks.current = { onChange: props.onChange, onPanelError: props.onPanelError };
     });
-
-    useEffect(
-      () => layout.subscribe((state, action) => callbacks.current.onChange?.(state, action)),
-      [layout],
-    );
 
     const overlayRef = useCallback(
       (element: HTMLDivElement | null) => view.setOverlay(element),
@@ -191,6 +203,7 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
       <LayoutContext.Provider value={context}>
         <ChromeContext.Provider value={chrome}>
           <div className={className} style={props.style} ref={rootRef}>
+            <ChangeNotifier layout={layout} callbacks={callbacks} />
             <Frame />
             <PanelLayer />
             <div className="gl-overlay" ref={overlayRef}>

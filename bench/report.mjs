@@ -6,9 +6,20 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const here = import.meta.dirname;
-const files = process.argv.slice(2).filter((arg) => !arg.startsWith('--'));
-const outFlag = process.argv.indexOf('--out');
-const outFile = outFlag >= 0 ? process.argv[outFlag + 1] : join(here, 'REPORT.md');
+// --out takes a value: consume the pair, so the value is not mistaken for an input file.
+const argv = process.argv.slice(2);
+const files = [];
+let outFile = join(here, 'REPORT.md');
+for (let i = 0; i < argv.length; i++) {
+  if (argv[i] === '--out') {
+    if (!argv[i + 1]) throw new Error('--out needs a file path');
+    outFile = argv[++i];
+  } else if (argv[i].startsWith('--')) {
+    throw new Error(`Unknown option ${argv[i]}`);
+  } else {
+    files.push(argv[i]);
+  }
+}
 const inputs = files.length
   ? files
   : ['full-cpu1.json', 'full-cpu4.json'].map((name) => join(here, 'results', name));
@@ -133,7 +144,12 @@ out.push(
       ['Node', meta.node],
       [
         'Samples',
-        `${meta.samples} measured per version after ${meta.warmups} discarded warm-ups, fresh page each, interleaved`,
+        runs
+          .map(
+            (run) =>
+              `${[...new Set(run.results.map((e) => cpuLabel(e.cpu)))].join(', ')}: ${run.meta.samples} measured per version after ${run.meta.warmups} discarded warm-ups`,
+          )
+          .join('; ') + '. Fresh page per sample, versions interleaved',
       ],
     ],
   ),
@@ -145,6 +161,34 @@ out.push(
     'task time reported by Chromium for the page (`TaskDuration`): all script, style, layout and ' +
     'paint work, which is not quantised to frames the way wall-clock time is.',
 );
+
+/* ---- completeness ---- */
+
+// A run that was interrupted has saved only some of its cells. Say so, rather than let a
+// shorter table pass for a complete one.
+const missing = [];
+for (const run of runs) {
+  const seen = (key) => [...new Set(run.results.map((entry) => entry[key]))];
+  for (const cpu of seen('cpu')) {
+    for (const size of seen('size')) {
+      for (const scenario of seen('scenario')) {
+        const present = run.results.some(
+          (e) => e.cpu === cpu && e.size === size && e.scenario === scenario,
+        );
+        if (!present) missing.push({ cpu, size, scenario });
+      }
+    }
+  }
+}
+if (missing.length > 0) {
+  out.push('');
+  out.push(
+    `> **Incomplete results.** ${missing.length} cells were not measured, because a run stopped ` +
+      'before it finished. They are marked "not measured" below and are not counted in the targets: ' +
+      missing.map((cell) => `${cell.scenario} / ${cell.size} / ${cpuLabel(cell.cpu)}`).join('; ') +
+      '.',
+  );
+}
 
 const misses = [];
 const wins = [];
@@ -158,7 +202,19 @@ for (const cpu of cpuLevels) {
   for (const name of scenarioNames) {
     for (const size of sizeNames) {
       const entry = find(name, size, cpu);
-      if (!entry) continue;
+      if (!entry) {
+        if (missing.some((c) => c.cpu === cpu && c.size === size && c.scenario === name)) {
+          rows.push([
+            scenarios[name].title,
+            `${size} (${PANELS[size]})`,
+            '',
+            '',
+            '',
+            'not measured',
+          ]);
+        }
+        continue;
+      }
       const { primary, unit } = scenarios[name];
       const result = compare(entry, primary, (seed += 2));
       const text = verdict(result);
@@ -381,7 +437,7 @@ if (existsSync(notes) && !meta.quick) {
 
 writeFileSync(outFile, `${out.join('\n')}\n`);
 console.log(
-  `Wrote ${outFile}: ${results.length} cells, ${wins.length} measurably better, ${misses.length} more than 10% worse`,
+  `Wrote ${outFile}: ${results.length} cells, ${missing.length} missing, ${wins.length} measurably better, ${misses.length} more than 10% worse`,
 );
 for (const miss of misses) {
   console.log(`  miss: ${miss.name} ${miss.size} cpu x${miss.cpu} ${percent(miss.result.change)}`);

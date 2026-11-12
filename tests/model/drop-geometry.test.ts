@@ -15,6 +15,7 @@ const stack = (id: string, left: number): StackGeometry => ({
   header: rect(left, 0, 400, 20),
   headerAxis: 'x',
   tabs: [rect(left, 0, 80, 20), rect(left + 80, 0, 80, 20)],
+  panelCount: 2,
   body: rect(left, 20, 400, 580),
 });
 
@@ -109,7 +110,7 @@ describe('drop-zone geometry', () => {
   it('fills an empty stack, and an empty layout', () => {
     const emptyStack: LayoutGeometry = {
       ...geometry,
-      stacks: [{ ...stack('left', 0), tabs: [] }, stack('right', 400)],
+      stacks: [{ ...stack('left', 0), tabs: [], panelCount: 0 }, stack('right', 400)],
     };
     expect(findDropTarget(emptyStack, { x: 200, y: 300 })).toEqual({
       place: { kind: 'tab', stackId: 'left', index: 0 },
@@ -124,7 +125,9 @@ describe('drop-zone geometry', () => {
   it('adds a tab from the centre of a body when there are no headers', () => {
     const headless: LayoutGeometry = {
       ...geometry,
-      stacks: [{ ...stack('left', 0), header: null, body: rect(0, 0, 400, 600) }],
+      // Without a header the renderer reports no tabs at all; the panel count still says
+      // the stack is populated.
+      stacks: [{ ...stack('left', 0), header: null, tabs: [], body: rect(0, 0, 400, 600) }],
     };
     expect(findDropTarget(headless, { x: 200, y: 300 })?.place).toEqual({
       kind: 'tab',
@@ -132,6 +135,11 @@ describe('drop-zone geometry', () => {
       index: 2,
     });
     expect(findDropTarget(headless, { x: 200, y: 100 })?.place).toMatchObject({ side: 'top' });
+    expect(findDropTarget(headless, { x: 20, y: 300 })?.place).toEqual({
+      kind: 'side',
+      targetId: 'left',
+      side: 'left',
+    });
   });
 
   it('returns nothing outside every item', () => {

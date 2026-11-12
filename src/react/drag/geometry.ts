@@ -20,6 +20,8 @@ export interface StackGeometry {
   /** Direction the tabs run in: `x` for a header on top or bottom, `y` for left or right. */
   headerAxis: 'x' | 'y';
   tabs: Rect[];
+  /** How many panels the stack holds. Not `tabs.length`: without a header there are no tabs. */
+  panelCount: number;
   body: Rect;
 }
 
@@ -152,7 +154,7 @@ export function findDropTarget(geometry: LayoutGeometry, point: Point): DropTarg
   for (const stack of geometry.stacks) {
     if (!contains(stack.body, point)) continue;
 
-    if (stack.tabs.length === 0) {
+    if (stack.panelCount === 0) {
       // An empty stack has nothing to dock against: fill it.
       return { place: { kind: 'tab', stackId: stack.id, index: 0 }, highlight: stack.body };
     }
@@ -162,7 +164,7 @@ export function findDropTarget(geometry: LayoutGeometry, point: Point): DropTarg
       const fy = (point.y - stack.body.top) / (stack.body.height || 1);
       if (fx >= 0.25 && fx <= 0.75 && fy >= 0.25 && fy <= 0.75) {
         return {
-          place: { kind: 'tab', stackId: stack.id, index: stack.tabs.length },
+          place: { kind: 'tab', stackId: stack.id, index: stack.panelCount },
           highlight: stack.body,
         };
       }

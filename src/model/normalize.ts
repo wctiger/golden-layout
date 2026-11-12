@@ -24,6 +24,11 @@ export class IdAllocator {
     walk(root ?? null, (node) => this.used.add(node.id));
   }
 
+  /** Marks an id as taken without complaining if it already is. */
+  reserve(id: string): void {
+    this.used.add(id);
+  }
+
   claim(id: string): void {
     if (this.used.has(id)) throw new LayoutError(`Duplicate item id "${id}"`);
     this.used.add(id);
@@ -62,6 +67,21 @@ function claimIds(config: unknown, ids: IdAllocator): void {
     if (!Array.isArray(children)) throw new LayoutError('"children" must be an array');
     for (const child of children) claimIds(child, ids);
   }
+}
+
+/**
+ * Chooses the id a new item will get, without building it. Ids written anywhere inside the
+ * item are reserved first, so the generated id cannot collide with one of its descendants.
+ */
+export function allocateItemId(root: LayoutNode | null, item: NodeConfig): string {
+  const ids = new IdAllocator(root);
+  const reserve = (config: unknown): void => {
+    if (!isObject(config)) return;
+    if (typeof config.id === 'string') ids.reserve(config.id);
+    if (Array.isArray(config.children)) config.children.forEach(reserve);
+  };
+  reserve(item);
+  return ids.next(item.type);
 }
 
 function sizeOf(config: { size?: number }): number | undefined {

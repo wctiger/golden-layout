@@ -1,5 +1,5 @@
 import { getIndex, isWithin } from '../../model/tree';
-import type { Destination, NodeConfig } from '../../model/types';
+import type { Destination, LayoutState, NodeConfig } from '../../model/types';
 import type { Settings } from '../../settings';
 import { DEFAULT_SETTINGS } from '../../settings';
 import type { Layout } from '../../store';
@@ -59,7 +59,8 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 /** Measures the frame as it stands. The tree is not changed during a drag, so once is enough. */
-export function readGeometry(root: HTMLElement): LayoutGeometry {
+export function readGeometry(root: HTMLElement, state: LayoutState): LayoutGeometry {
+  const index = getIndex(state.root);
   // While a stack is maximized it is the whole layout as far as dropping is concerned.
   const maximized = root.querySelector<HTMLElement>('.gl-stack.gl-maximized');
   const elements = maximized
@@ -69,8 +70,11 @@ export function readGeometry(root: HTMLElement): LayoutGeometry {
     const header = element.querySelector<HTMLElement>(':scope > .gl-header');
     const body = element.querySelector<HTMLElement>(':scope > .gl-stack-content');
     const position = element.dataset.header;
+    const id = element.dataset.itemId ?? '';
+    const node = index.get(id)?.node;
     return {
-      id: element.dataset.itemId ?? '',
+      id,
+      panelCount: node?.type === 'stack' ? node.children.length : 0,
       header: header ? toRect(header.getBoundingClientRect()) : null,
       headerAxis: position === 'left' || position === 'right' ? ('y' as const) : ('x' as const),
       tabs: header
@@ -212,7 +216,7 @@ export class DragController {
         source.title ?? (item?.type === 'panel' ? (item.title ?? item.component) : '');
     }
     session.started = true;
-    session.geometry = readGeometry(root);
+    session.geometry = readGeometry(root, this.layout.getState());
     session.previousUserSelect = session.document.body.style.userSelect;
     session.document.body.style.userSelect = 'none';
     root.classList.add('gl-dragging');

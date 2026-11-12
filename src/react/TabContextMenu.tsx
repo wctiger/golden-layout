@@ -138,7 +138,9 @@ function OpenMenu({ menu }: { menu: TabMenuState }): ReactNode {
   if (!context || items.length === 0) return null;
 
   const focusTab = (): void => {
-    view.root?.querySelector<HTMLElement>(`.gl-tab[data-panel-id="${menu.panelId}"]`)?.focus();
+    view.root
+      ?.querySelector<HTMLElement>(`.gl-tab[data-panel-id="${CSS.escape(menu.panelId)}"]`)
+      ?.focus();
   };
   const choose = (item: TabMenuItem): void => {
     if (item.disabled) return;

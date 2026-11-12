@@ -100,9 +100,15 @@
   font-size: var(--gl-font-size);
 }
 
+/*
+ * Stacking order, bottom to top: the frame, the panels, the overlay. The frame is its own
+ * stacking context, so nothing inside it (a splitter, a maximized stack) can rise above
+ * the panel layer and take the pointer events meant for a panel.
+ */
 .gl-frame {
   position: absolute;
   inset: 0;
+  z-index: 0;
   display: flex;
 }
 

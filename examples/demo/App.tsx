@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import {
   GoldenLayout,
@@ -183,7 +183,8 @@ export function App(): ReactNode {
   const [theme, setTheme] = useState('dark');
   const [selection, setSelection] = useState(true);
   const [headers, setHeaders] = useState(true);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Read from the layout itself, so a restored selection is known from the first render.
+  const selectedId = useSyncExternalStore(layout.subscribe, () => layout.getState().selectedId);
 
   const setHeaderSide = (side: Side): void => {
     const node = selectedId ? layout.getById(selectedId) : undefined;
@@ -264,7 +265,6 @@ export function App(): ReactNode {
           settings={{ selectionEnabled: selection, hasHeaders: headers }}
           renderStackActions={renderStackActions}
           tabContextMenu={tabContextMenu}
-          onChange={(state) => setSelectedId(state.selectedId)}
         />
       </div>
     </div>

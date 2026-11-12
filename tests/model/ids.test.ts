@@ -54,4 +54,20 @@ describe('ids work properly', () => {
     expect(id).not.toBe('panel-1');
     expect(layout.getById(id)?.type).toBe('panel');
   });
+
+  // Review finding on PR #11: the id handed back was chosen before looking inside the item.
+  it('does not generate an id that the new item uses further down', () => {
+    const fresh = createLayout();
+    const id = fresh.addItem({ type: 'row', children: [{ type: 'row', id: 'row-1' }] });
+    expect(id).toBe('row-2');
+    expect(fresh.getById('row-1')?.type).toBe('row');
+    expect(fresh.getParent('row-1')?.id).toBe('row-2');
+
+    const replaced = fresh.replaceItem('row-2', {
+      type: 'column',
+      children: [{ type: 'column', id: 'column-1' }],
+    });
+    expect(replaced).toBe('column-2');
+    expect(fresh.getParent('column-1')?.id).toBe('column-2');
+  });
 });

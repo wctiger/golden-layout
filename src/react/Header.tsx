@@ -95,6 +95,8 @@ const Tab = memo(function Tab({ panel, active }: TabProps): ReactNode {
   };
 
   const onKeyDown = (event: KeyboardEvent): void => {
+    // Keys pressed on something inside the tab, such as its close button, belong to that.
+    if (event.target !== event.currentTarget) return;
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       layout.setActive(panel.id);

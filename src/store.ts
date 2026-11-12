@@ -1,4 +1,4 @@
-import { IdAllocator, normalizeLayout } from './model/normalize';
+import { allocateItemId, normalizeLayout } from './model/normalize';
 import { filterItems, findByComponent, findById, findByType, parentOf } from './model/queries';
 import type { Scope } from './model/queries';
 import { reduce } from './model/reducer';
@@ -90,7 +90,7 @@ export function createLayout(config?: LayoutConfig): Layout {
   /** Gives the item an id up front, so the caller can be told what was created. */
   const withId = <T extends NodeConfig>(item: T): T & { id: string } =>
     item.id === undefined
-      ? { ...item, id: new IdAllocator(state.root).next(item.type) }
+      ? { ...item, id: allocateItemId(state.root, item) }
       : (item as T & { id: string });
 
   const scoped = (scope: LayoutNode | undefined): Scope => scope ?? state;
