@@ -80,3 +80,7 @@ body {
 .demo-panel input[type='text'] {
   font: inherit;
 }
+
+.demo-link {
+  color: #9fb4d9;
+}

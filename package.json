@@ -36,8 +36,9 @@
   },
   "scripts": {
     "dev": "vp dev examples/demo",
+    "dev:trading": "vp dev examples/trading",
     "build": "vp pack",
-    "build:examples": "vp build examples/demo --base ./",
+    "build:examples": "vp build examples/demo --base ./ && vp build examples/trading --base ./ --outDir ../demo/dist/trading --emptyOutDir",
     "test": "vp test run",
     "check": "vp check",
     "check:fix": "vp check --fix",
@@ -48,6 +49,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitest/browser-playwright": "5.1.0",
+    "dockview-react": "8.9.0",
     "playwright": "1.63.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

@@ -3,7 +3,7 @@
 A docking layout manager for React 18+: rows, columns and tabbed stacks of panels that users
 resize, reorder, re-dock by drag and drop, and maximize.
 
-[Open the live demo](https://wctiger.github.io/golden-layout/) · [Browse the examples](./examples)
+[Open the live demo](https://wctiger.github.io/golden-layout/) · [Trading desk demo](https://wctiger.github.io/golden-layout/trading/) · [Browse the examples](./examples)
 
 This is a ground-up rewrite of the jQuery-era golden-layout 1.x. It is written in TypeScript,
 renders entirely with React, and has no runtime dependency other than React. It is **not
@@ -483,6 +483,7 @@ The project uses [Vite+](https://viteplus.dev).
 ```sh
 npm install
 npm run dev      # the demo app, from examples/demo
+npm run dev:trading  # the trading desk, from examples/trading
 npm test         # model tests in Node, rendering tests in Chromium
 npm run check    # format, lint and typecheck
 npm run build    # ESM bundle, types and stylesheet into dist/

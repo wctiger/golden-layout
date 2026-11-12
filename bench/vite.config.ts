@@ -17,6 +17,7 @@ export default defineConfig({
       input: {
         legacy: resolve(root, 'legacy/index.html'),
         next: resolve(root, 'next/index.html'),
+        dockview: resolve(root, 'dockview/index.html'),
       },
     },
   },

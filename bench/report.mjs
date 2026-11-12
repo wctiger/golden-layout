@@ -1,6 +1,6 @@
 // Turns raw benchmark results into bench/REPORT.md.
 //
-//   node bench/report.mjs                              checked-in full runs with the splitter follow-up
+//   node bench/report.mjs                              full-cpu1.json and full-cpu4.json
 //   node bench/report.mjs bench/results/quick.json     any result files
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -9,11 +9,16 @@ const here = import.meta.dirname;
 // --out takes a value: consume the pair, so the value is not mistaken for an input file.
 const argv = process.argv.slice(2);
 const files = [];
+const extraOverrides = [];
 let outFile = join(here, 'REPORT.md');
 for (let i = 0; i < argv.length; i++) {
   if (argv[i] === '--out') {
     if (!argv[i + 1]) throw new Error('--out needs a file path');
     outFile = argv[++i];
+  } else if (argv[i] === '--override') {
+    // --override <results file> <note>: cells in the file replace the matching main cells.
+    if (!argv[i + 1] || !argv[i + 2]) throw new Error('--override needs a file and a note');
+    extraOverrides.push({ path: argv[++i], note: argv[++i] });
   } else if (argv[i].startsWith('--')) {
     throw new Error(`Unknown option ${argv[i]}`);
   } else {
@@ -28,26 +33,57 @@ const runs = inputs
   .map((file) => JSON.parse(readFileSync(file, 'utf8')));
 if (runs.length === 0) throw new Error(`No result files found: ${inputs.join(', ')}`);
 
+/**
+ * Re-measurements that supersede cells of the main runs: a cell in an override file replaces
+ * the main cell with the same scenario, size and CPU setting. Only used for the default report.
+ */
+const OVERRIDES = [
+  {
+    file: 'supp-splitter.json',
+    note:
+      'measured again after the splitter was changed to resize on release, on the benchmark ' +
+      'build plus that one change',
+    text:
+      'Splitter results use the [resize-on-release run](results/supp-splitter.json) for both ' +
+      'versions. Only the splitter marker moves during the drag. Both versions resize the panels ' +
+      'once on release.',
+  },
+];
+const overrides = [
+  ...(files.length ? [] : OVERRIDES).map((override) => ({
+    ...override,
+    path: join(here, 'results', override.file),
+  })),
+  ...extraOverrides.map((override) => ({
+    ...override,
+    file: override.path.replace(/^.*bench\/results\//, ''),
+  })),
+]
+  .filter((override) => existsSync(override.path))
+  .map((override) => ({ ...override, run: JSON.parse(readFileSync(override.path, 'utf8')) }));
+const sameCell = (a, b) => a.scenario === b.scenario && a.size === b.size && a.cpu === b.cpu;
+for (const override of overrides) {
+  for (const run of runs) {
+    run.results = run.results.map(
+      (entry) => override.run.results.find((replacement) => sameCell(entry, replacement)) ?? entry,
+    );
+  }
+}
+
 const meta = runs[0].meta;
 const scenarios = runs[0].scenarios;
 const sizes = runs[0].sizes;
-// The published report uses the paired resize-on-release measurements for both versions.
-if (files.length === 0) {
-  const followup = JSON.parse(readFileSync(join(here, 'results', 'supp-splitter.json'), 'utf8'));
-  for (const run of runs) {
-    run.results = run.results.map((entry) => {
-      if (entry.scenario !== 'splitter') return entry;
-      const replacement = followup.results.find(
-        (cell) =>
-          cell.scenario === 'splitter' && cell.size === entry.size && cell.cpu === entry.cpu,
-      );
-      if (!replacement)
-        throw new Error(`Missing splitter follow-up for ${entry.size}, CPU x${entry.cpu}`);
-      return replacement;
-    });
-  }
-}
 const results = runs.flatMap((run) => run.results);
+
+/** The first version is the baseline; changes are the second version's, relative to it. */
+const [BASE, OTHER] = meta.versions ?? ['legacy', 'next'];
+const againstLegacy = BASE === 'legacy' && OTHER === 'next';
+const LABELS = {
+  legacy: 'Legacy',
+  next: againstLegacy ? 'Rewrite' : 'This library',
+  dockview: 'dockview',
+};
+const label = (version) => LABELS[version] ?? version;
 
 /* ------------------------------------------------------------- statistics */
 
@@ -86,8 +122,8 @@ function medianInterval(values, seed) {
 
 function compare(entry, metric, seed) {
   const pick = (version) => entry.samples[version].map((sample) => sample[metric]);
-  const legacy = pick('legacy');
-  const next = pick('next');
+  const legacy = pick(BASE);
+  const next = pick(OTHER);
   const legacyMedian = median(legacy);
   const nextMedian = median(next);
   const legacyCi = medianInterval(legacy, seed);
@@ -118,8 +154,8 @@ function verdict(result, lowerIsBetter = true) {
   if (!result.real) return 'no measurable difference';
   const better = lowerIsBetter ? result.change < 0 : result.change > 0;
   return better
-    ? `rewrite better (${percent(result.change)})`
-    : `legacy better (${percent(result.change)})`;
+    ? `${label(OTHER).toLowerCase()} better (${percent(result.change)})`
+    : `${label(BASE).toLowerCase()} better (${percent(result.change)})`;
 }
 
 const cpuLevels = [...new Set(results.map((entry) => entry.cpu))].sort((a, b) => a - b);
@@ -137,7 +173,11 @@ const cpuLabel = (cpu) => (cpu === 1 ? 'unthrottled' : `${cpu}x CPU throttle`);
 /* ----------------------------------------------------------------- report */
 
 const out = [];
-out.push('# Benchmark report: rewrite versus legacy 1.5.9');
+out.push(
+  againstLegacy
+    ? '# Benchmark report: rewrite versus legacy 1.5.9'
+    : `# Benchmark report: ${label(OTHER).toLowerCase()} versus ${label(BASE)}`,
+);
 out.push('');
 out.push(
   'Generated by `node bench/report.mjs` from the raw results in `bench/results/`. ' +
@@ -177,12 +217,15 @@ out.push(
     'task time reported by Chromium for the page (`TaskDuration`): all script, style, layout and ' +
     'paint work, which is not quantised to frames the way wall-clock time is.',
 );
-
-if (files.length === 0) {
+for (const override of overrides) {
+  const replaced = [
+    ...new Set(override.run.results.map((entry) => scenarios[entry.scenario].title)),
+  ];
   out.push('');
   out.push(
-    'Splitter results use the [resize-on-release run](results/supp-splitter.json) for both versions. ' +
-      'Only the splitter marker moves during the drag. Both versions resize the panels once on release.',
+    override.text ??
+      `The rows for ${replaced.join(', ')} come from \`bench/results/${override.file}\`: ` +
+        `${override.note} (${override.run.meta.samples} samples per cell).`,
   );
 }
 
@@ -255,7 +298,9 @@ for (const cpu of cpuLevels) {
       if (result.real && result.change < 0) wins.push(record);
     }
   }
-  out.push(table(['Scenario', 'Size (panels)', 'Legacy', 'Rewrite', 'Change', 'Verdict'], rows));
+  out.push(
+    table(['Scenario', 'Size (panels)', label(BASE), label(OTHER), 'Change', 'Verdict'], rows),
+  );
 }
 
 /* ---- targets ---- */
@@ -271,107 +316,136 @@ const medianOf = (scenario, size, cpu, metric, version) => {
   return entry ? median(entry.samples[version].map((sample) => sample[metric])) : NaN;
 };
 
-out.push('');
-out.push('## Targets');
-out.push('');
-const targets = [];
+if (againstLegacy) {
+  out.push('');
+  out.push('## Targets');
+  out.push('');
+  const targets = [];
 
-targets.push([
-  'No scenario more than 10% slower than legacy at the median',
-  misses.length === 0 ? 'met' : `missed in ${misses.length} of ${results.length} cells`,
-  misses.length === 0
-    ? 'No cell is measurably more than 10% slower.'
-    : [...new Set(misses.map((miss) => scenarios[miss.name].title))].join('; '),
-]);
+  targets.push([
+    'No scenario more than 10% slower than legacy at the median',
+    misses.length === 0 ? 'met' : `missed in ${misses.length} of ${results.length} cells`,
+    misses.length === 0
+      ? 'No cell is measurably more than 10% slower.'
+      : [...new Set(misses.map((miss) => scenarios[miss.name].title))].join('; '),
+  ]);
 
-const frameTarget = ['splitter', 'redock'].map((name) =>
-  medianOf(name, 'medium', 1, 'frameP95', 'next'),
-);
-const framesOk = frameTarget.every((value) => Number.isFinite(value) && value <= 17);
-targets.push([
-  'Splitter and re-dock drags hold a 60 Hz frame at p95, medium size, unthrottled',
-  frameTarget.some(Number.isNaN) ? 'not run' : framesOk ? 'met' : 'missed',
-  `p95 frame gap: splitter ${fixed(frameTarget[0], 'ms')}, re-dock ${fixed(frameTarget[1], 'ms')} (one 60 Hz frame is 16.7 ms)`,
-]);
+  const frameTarget = ['splitter', 'redock'].map((name) =>
+    medianOf(name, 'medium', 1, 'frameP95', 'next'),
+  );
+  const framesOk = frameTarget.every((value) => Number.isFinite(value) && value <= 17);
+  targets.push([
+    'Splitter and re-dock drags hold a 60 Hz frame at p95, medium size, unthrottled',
+    frameTarget.some(Number.isNaN) ? 'not run' : framesOk ? 'met' : 'missed',
+    `p95 frame gap: splitter ${fixed(frameTarget[0], 'ms')}, re-dock ${fixed(frameTarget[1], 'ms')} (one 60 Hz frame is 16.7 ms)`,
+  ]);
 
-const gestureRenders = ['splitter', 'resize', 'redock'].map((name) => worst(name, 'panelRenders'));
-targets.push([
-  'Zero panel re-renders during splitter drag, container resize and re-dock drag',
-  gestureRenders.some(Number.isNaN)
-    ? 'not run'
-    : gestureRenders.every((count) => count === 0)
-      ? 'met'
-      : 'missed',
-  `most panel renders seen in any sample: splitter ${gestureRenders[0]}, resize ${gestureRenders[1]}, re-dock ${gestureRenders[2]}`,
-]);
+  const gestureRenders = ['splitter', 'resize', 'redock'].map((name) =>
+    worst(name, 'panelRenders'),
+  );
+  targets.push([
+    'Zero panel re-renders during splitter drag, container resize and re-dock drag',
+    gestureRenders.some(Number.isNaN)
+      ? 'not run'
+      : gestureRenders.every((count) => count === 0)
+        ? 'met'
+        : 'missed',
+    `most panel renders seen in any sample: splitter ${gestureRenders[0]}, resize ${gestureRenders[1]}, re-dock ${gestureRenders[2]}`,
+  ]);
 
-const localRenders = results
-  .filter((entry) => entry.scenario === 'local')
-  .flatMap((entry) => entry.samples.next.map((sample) => sample.panelRenders));
-targets.push([
-  'A panel-local update re-renders only that panel',
-  localRenders.length === 0
-    ? 'not run'
-    : localRenders.every((count) => count === 100)
-      ? 'met'
-      : 'missed',
-  `100 updates caused ${Math.min(...localRenders)} to ${Math.max(...localRenders)} panel renders in total`,
-]);
+  const localRenders = results
+    .filter((entry) => entry.scenario === 'local')
+    .flatMap((entry) => entry.samples.next.map((sample) => sample.panelRenders));
+  targets.push([
+    'A panel-local update re-renders only that panel',
+    localRenders.length === 0
+      ? 'not run'
+      : localRenders.every((count) => count === 100)
+        ? 'met'
+        : 'missed',
+    `100 updates caused ${Math.min(...localRenders)} to ${Math.max(...localRenders)} panel renders in total`,
+  ]);
 
-const churnRows = sizeNames.map((size) => find('churn', size, 1)).filter(Boolean);
-const churnWorse = churnRows.filter((entry) => {
-  const result = compare(entry, 'heapKb', (seed += 2));
-  return result.real && result.change > 0.1;
-});
-const leaks = churnRows.flatMap((entry) =>
-  entry.samples.next.map((s) => Math.abs(s.nodes) + Math.abs(s.listeners)),
-);
-targets.push([
-  'No heap growth across mount and destroy beyond noise',
-  churnRows.length === 0
-    ? 'not run'
-    : churnWorse.length === 0 && Math.max(...leaks) === 0
-      ? 'met'
-      : 'see note',
-  `after 50 cycles and a forced GC the rewrite retains ${churnRows
-    .map(
-      (entry) => `${fixed(median(entry.samples.next.map((s) => s.heapKb)), 'kB')} (${entry.size})`,
-    )
-    .join(', ')}, against ${churnRows
-    .map((entry) => fixed(median(entry.samples.legacy.map((s) => s.heapKb)), 'kB'))
-    .join(', ')} for legacy; leaked DOM nodes and listeners: ${Math.max(0, ...leaks)}`,
-]);
+  const churnRows = sizeNames.map((size) => find('churn', size, 1)).filter(Boolean);
+  const churnWorse = churnRows.filter((entry) => {
+    const result = compare(entry, 'heapKb', (seed += 2));
+    return result.real && result.change > 0.1;
+  });
+  const leaks = churnRows.flatMap((entry) =>
+    entry.samples.next.map((s) => Math.abs(s.nodes) + Math.abs(s.listeners)),
+  );
+  targets.push([
+    'No heap growth across mount and destroy beyond noise',
+    churnRows.length === 0
+      ? 'not run'
+      : churnWorse.length === 0 && Math.max(...leaks) === 0
+        ? 'met'
+        : 'see note',
+    `after 50 cycles and a forced GC the rewrite retains ${churnRows
+      .map(
+        (entry) =>
+          `${fixed(median(entry.samples.next.map((s) => s.heapKb)), 'kB')} (${entry.size})`,
+      )
+      .join(', ')}, against ${churnRows
+      .map((entry) => fixed(median(entry.samples.legacy.map((s) => s.heapKb)), 'kB'))
+      .join(', ')} for legacy; leaked DOM nodes and listeners: ${Math.max(0, ...leaks)}`,
+  ]);
 
-targets.push([
-  'Smaller minified and gzipped JavaScript than legacy plus jQuery',
-  sizes.next.js.gzip < sizes.legacy.js.gzip ? 'met' : 'missed',
-  `${kb(sizes.next.js.gzip)} against ${kb(sizes.legacy.js.gzip)}`,
-]);
+  targets.push([
+    'Smaller minified and gzipped JavaScript than legacy plus jQuery',
+    sizes.next.js.gzip < sizes.legacy.js.gzip ? 'met' : 'missed',
+    `${kb(sizes.next.js.gzip)} against ${kb(sizes.legacy.js.gzip)}`,
+  ]);
 
-out.push(table(['Target', 'Result', 'Evidence'], targets));
+  out.push(table(['Target', 'Result', 'Evidence'], targets));
+}
 
 /* ---- size ---- */
 
 out.push('');
 out.push('## Download size');
 out.push('');
-const sizeRow = (label, value) => [label, kb(value.min), kb(value.gzip), kb(value.brotli)];
-out.push(
-  table(
-    ['Bundle', 'Minified', 'Gzip', 'Brotli'],
-    [
-      sizeRow('Legacy JavaScript, with jQuery 1.11', sizes.legacy.js),
-      sizeRow('Legacy JavaScript, without jQuery', sizes.legacy.jsWithoutJquery),
-      sizeRow('Rewrite JavaScript', sizes.next.js),
-      sizeRow('Legacy CSS (base and dark theme)', sizes.legacy.css),
-      sizeRow('Rewrite CSS (base and dark theme)', sizes.next.css),
-    ],
-  ),
-);
-out.push('');
-out.push(
-  'React is excluded from every row. Legacy cannot run without jQuery, so its real cost is the first row.',
-);
+const sizeRow = (name, value) => [name, kb(value.min), kb(value.gzip), kb(value.brotli)];
+if (againstLegacy) {
+  out.push(
+    table(
+      ['Bundle', 'Minified', 'Gzip', 'Brotli'],
+      [
+        sizeRow('Legacy JavaScript, with jQuery 1.11', sizes.legacy.js),
+        sizeRow('Legacy JavaScript, without jQuery', sizes.legacy.jsWithoutJquery),
+        sizeRow('Rewrite JavaScript', sizes.next.js),
+        sizeRow('Legacy CSS (base and dark theme)', sizes.legacy.css),
+        sizeRow('Rewrite CSS (base and dark theme)', sizes.next.css),
+      ],
+    ),
+  );
+  out.push('');
+  out.push(
+    'React is excluded from every row. Legacy cannot run without jQuery, so its real cost is the first row.',
+  );
+} else {
+  const cssNote = { next: 'base and dark theme', dockview: 'the shipped stylesheet, all themes' };
+  out.push(
+    table(
+      ['Bundle', 'Minified', 'Gzip', 'Brotli'],
+      [BASE, OTHER].flatMap((version) =>
+        sizes[version]
+          ? [
+              sizeRow(`${label(version)} JavaScript`, sizes[version].js),
+              sizeRow(
+                `${label(version)} CSS (${cssNote[version] ?? 'as shipped'})`,
+                sizes[version].css,
+              ),
+            ]
+          : [],
+      ),
+    ),
+  );
+  out.push('');
+  out.push(
+    'React is excluded from every row. JavaScript is minified from the package as imported.',
+  );
+}
 
 /* ---- detail ---- */
 
@@ -429,13 +503,13 @@ for (const name of scenarioNames) {
       const entry = find(name, size, cpu);
       if (!entry) continue;
       const result = compare(entry, primary, (seed += 2));
-      for (const version of ['legacy', 'next']) {
+      for (const version of [BASE, OTHER]) {
         rows.push([
           cpuLabel(cpu),
           size,
-          version === 'next' ? 'rewrite' : 'legacy',
-          fixed(version === 'next' ? result.nextMedian : result.legacyMedian, unit),
-          interval(version === 'next' ? result.nextCi : result.legacyCi),
+          label(version),
+          fixed(version === OTHER ? result.nextMedian : result.legacyMedian, unit),
+          interval(version === OTHER ? result.nextCi : result.legacyCi),
           ...columns.map(([key, , columnUnit]) =>
             fixed(median(entry.samples[version].map((sample) => sample[key] ?? NaN)), columnUnit),
           ),
@@ -454,7 +528,7 @@ for (const name of scenarioNames) {
 /* ---- notes ---- */
 
 const notes = join(here, 'NOTES.md');
-if (files.length === 0 && existsSync(notes) && !meta.quick) {
+if (againstLegacy && existsSync(notes) && !meta.quick) {
   out.push('');
   out.push(readFileSync(notes, 'utf8').trim());
 }

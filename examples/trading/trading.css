@@ -1,0 +1,172 @@
+/* Page chrome and two frame themes for the trading desk. The themes only set golden-layout's
+   CSS variables; the panels style themselves from colors.ts. */
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Inter, 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.trade-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--trade-page);
+  color: var(--trade-text);
+  color-scheme: var(--trade-scheme);
+}
+
+.trade-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--trade-line);
+}
+
+.trade-toolbar h1 {
+  margin: 0 8px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.trade-toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--trade-muted);
+}
+
+.trade-toolbar select,
+.trade-toolbar button {
+  font: inherit;
+  color: var(--trade-text);
+  background: var(--trade-control);
+  border: 1px solid var(--trade-line);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.trade-toolbar button:hover {
+  border-color: var(--trade-muted);
+}
+
+.trade-toolbar a {
+  color: var(--trade-muted);
+}
+
+.trade-meter {
+  margin-left: auto;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--trade-muted);
+}
+
+.trade-layout {
+  flex: 1;
+  min-height: 0;
+  padding: 4px;
+}
+
+/* Thin scrollbars for the panels' own scroll areas. */
+.trade-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.35) transparent;
+}
+
+/* Dark: the colours of dockview's Abyss theme. */
+.trade-dark {
+  --trade-scheme: dark;
+  --trade-page: #000c18;
+  --trade-text: #ffffff;
+  --trade-muted: rgb(148, 151, 169);
+  --trade-line: #2b2b4a;
+  --trade-control: #10192c;
+}
+
+.trade-dark .gl-root {
+  --gl-background: #000c18;
+  --gl-content-background: #000c18;
+  --gl-content-text: #ffffff;
+  --gl-header-background: #1c1c2a;
+  --gl-header-selected-background: #2b2b4a;
+  --gl-tab-background: #10192c;
+  --gl-tab-text: rgba(255, 255, 255, 0.5);
+  --gl-tab-hover-background: #18223a;
+  --gl-tab-active-background: #000c18;
+  --gl-tab-active-text: #ffffff;
+  --gl-tab-shadow: none;
+  --gl-tab-active-shadow: none;
+  --gl-control-color: #ffffff;
+  --gl-control-opacity: 0.5;
+  --gl-control-hover-background: rgba(255, 255, 255, 0.1);
+  --gl-splitter-background: #2b2b4a;
+  --gl-splitter-hover-background: rgb(91, 30, 207);
+  --gl-drop-indicator-background: rgba(91, 30, 207, 0.25);
+  --gl-drop-indicator-border: 1px solid rgb(91, 30, 207);
+  --gl-drop-indicator-shadow: none;
+  --gl-drag-proxy-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --gl-menu-background: #10192c;
+  --gl-menu-text: #ffffff;
+  --gl-menu-border: 1px solid #2b2b4a;
+  --gl-menu-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --gl-menu-hover-background: #2b2b4a;
+  --gl-scrollbar-thumb: rgba(255, 255, 255, 0.16);
+  --gl-scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+  --gl-title-input-background: #000c18;
+  --gl-title-input-text: #ffffff;
+}
+
+/* Light. */
+.trade-light {
+  --trade-scheme: light;
+  --trade-page: #f3f4f6;
+  --trade-text: #0f172a;
+  --trade-muted: #64748b;
+  --trade-line: #d8dde5;
+  --trade-control: #ffffff;
+}
+
+.trade-light .gl-root {
+  --gl-background: #f3f4f6;
+  --gl-content-background: #ffffff;
+  --gl-content-text: #0f172a;
+  --gl-header-background: #e9ecf1;
+  --gl-header-selected-background: #dbe4f3;
+  --gl-tab-background: #e9ecf1;
+  --gl-tab-text: #64748b;
+  --gl-tab-hover-background: #f3f4f6;
+  --gl-tab-active-background: #ffffff;
+  --gl-tab-active-text: #0f172a;
+  --gl-tab-shadow: none;
+  --gl-tab-active-shadow: none;
+  --gl-control-color: #0f172a;
+  --gl-control-opacity: 0.55;
+  --gl-control-hover-background: rgba(0, 0, 0, 0.06);
+  --gl-splitter-background: #d8dde5;
+  --gl-splitter-hover-background: #1f6feb;
+  --gl-drop-indicator-background: rgba(31, 111, 235, 0.15);
+  --gl-drop-indicator-border: 1px solid #1f6feb;
+  --gl-drop-indicator-shadow: none;
+  --gl-drag-proxy-shadow: 0 4px 16px rgba(15, 23, 42, 0.2);
+  --gl-menu-background: #ffffff;
+  --gl-menu-text: #0f172a;
+  --gl-menu-border: 1px solid #d8dde5;
+  --gl-menu-shadow: 0 4px 16px rgba(15, 23, 42, 0.15);
+  --gl-menu-hover-background: #eef2f7;
+  --gl-scrollbar-thumb: rgba(0, 0, 0, 0.18);
+  --gl-scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+  --gl-title-input-background: #ffffff;
+  --gl-title-input-text: #0f172a;
+}
+
+/* The FX panel's nested layout: no outer padding, a compact header. */
+.trade-nested.gl-root {
+  --gl-header-height: 24px;
+}

@@ -17,6 +17,7 @@ export default defineConfig({
       entry: {
         next: resolve(root, 'size/next.ts'),
         legacy: resolve(root, 'size/legacy.js'),
+        dockview: resolve(root, 'size/dockview.ts'),
       },
       formats: ['es'],
     },
