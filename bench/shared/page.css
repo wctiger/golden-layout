@@ -1,0 +1,27 @@
+html,
+body {
+  margin: 0;
+  overflow: hidden;
+  font:
+    13px/1.3 Arial,
+    sans-serif;
+}
+
+#root {
+  width: 1600px;
+  height: 900px;
+}
+
+.bench-panel {
+  padding: 6px 10px;
+  color: #ddd;
+}
+
+.bench-panel h4 {
+  margin: 0 0 4px;
+}
+
+.bench-panel ul {
+  margin: 0;
+  padding-left: 18px;
+}

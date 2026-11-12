@@ -1,0 +1,35 @@
+/* Translucent theme: variable overrides only. Apply with className="gl-theme-translucent". */
+.gl-theme-translucent.gl-root,
+.gl-theme-translucent .gl-root {
+  --gl-splitter-size: 8px;
+  --gl-tab-radius: 3px;
+  --gl-background: linear-gradient(to right bottom, dodgerblue, palevioletred);
+  --gl-content-background: rgba(255, 255, 255, 0.1);
+  --gl-content-text: whitesmoke;
+  --gl-content-shadow: 0 0 15px 2px rgba(0, 0, 0, 0.1);
+  --gl-header-background: transparent;
+  --gl-header-selected-background: rgba(255, 255, 255, 0.25);
+  --gl-tab-background: rgba(255, 255, 255, 0.05);
+  --gl-tab-text: rgba(255, 255, 255, 0.7);
+  --gl-tab-hover-background: rgba(255, 255, 255, 0.15);
+  --gl-tab-active-background: rgba(255, 255, 255, 0.1);
+  --gl-tab-active-text: #ffffff;
+  --gl-control-color: #ffffff;
+  --gl-control-opacity: 0.6;
+  --gl-control-hover-background: rgba(255, 255, 255, 0.2);
+  --gl-splitter-hover-background: rgba(255, 255, 255, 0.3);
+  --gl-drop-indicator-background: rgba(255, 255, 255, 0.1);
+  --gl-drop-indicator-border: 1px dashed rgba(255, 255, 255, 0.7);
+  --gl-drop-indicator-shadow: inset 0 0 20px rgba(255, 255, 255, 0.5);
+  --gl-drag-proxy-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+  --gl-menu-background: rgba(40, 60, 110, 0.95);
+  --gl-menu-text: whitesmoke;
+  --gl-menu-border: 1px solid rgba(255, 255, 255, 0.4);
+  --gl-menu-hover-background: rgba(255, 255, 255, 0.15);
+  --gl-scrollbar-thumb: rgba(255, 255, 255, 0.35);
+  --gl-scrollbar-thumb-hover: rgba(255, 255, 255, 0.6);
+  --gl-title-input-background: rgba(0, 0, 0, 0.35);
+  --gl-title-input-text: #ffffff;
+  --gl-title-input-border: 1px solid #ffffff;
+  --gl-focus-ring: 2px solid #ffffff;
+}

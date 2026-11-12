@@ -1,0 +1,43 @@
+name: Benchmark
+
+# Run by hand from the Actions tab. Shared runners are too noisy for timing thresholds, so
+# this job never gates a merge: it produces a report to read.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'quick (small layout, 5 samples) or full (every size, 20 samples, two CPU settings)'
+        type: choice
+        options: [quick, full]
+        default: quick
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Quick benchmark
+        if: inputs.mode == 'quick'
+        run: |
+          node bench/run.mjs --quick
+          node bench/report.mjs bench/results/quick.json --out bench/results/REPORT-quick.md
+      - name: Full benchmark
+        if: inputs.mode == 'full'
+        run: |
+          node bench/run.mjs --cpu 1 --out full-cpu1.json
+          node bench/run.mjs --cpu 4 --out full-cpu4.json
+          node bench/report.mjs --out bench/results/REPORT-full.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-${{ inputs.mode }}
+          path: bench/results/

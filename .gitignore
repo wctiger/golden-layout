@@ -1,5 +1,8 @@
 node_modules
-typings
-.idea
-npm-debug.log
-lib/
+dist
+.DS_Store
+bench/results/quick.json
+bench/results/smoke.json
+*.log
+bench/dist
+bench/dist-size

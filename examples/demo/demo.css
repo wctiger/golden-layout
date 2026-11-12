@@ -1,0 +1,82 @@
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font:
+    13px/1.4 system-ui,
+    sans-serif;
+}
+
+.demo {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.demo-toolbar {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 8px 12px;
+  background: #1f2430;
+  color: #e6e6e6;
+}
+
+.demo-toolbar label,
+.demo-toolbar .group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.demo-toolbar button,
+.demo-toolbar select {
+  font: inherit;
+}
+
+.demo-chip {
+  padding: 3px 10px;
+  border: 1px dashed #8a93a6;
+  border-radius: 12px;
+  cursor: grab;
+  user-select: none;
+}
+
+.demo-layout {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.demo-panel {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 12px;
+}
+
+.demo-panel h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.demo-panel p {
+  margin: 0 0 8px;
+}
+
+.demo-panel textarea {
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(100% - 60px);
+  font:
+    12px/1.4 ui-monospace,
+    monospace;
+}
+
+.demo-panel input[type='text'] {
+  font: inherit;
+}

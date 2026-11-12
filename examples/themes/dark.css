@@ -1,0 +1,35 @@
+/* Dark theme: variable overrides only. Apply with className="gl-theme-dark". */
+.gl-theme-dark.gl-root,
+.gl-theme-dark .gl-root {
+  --gl-background: #000000;
+  --gl-content-background: #222222;
+  --gl-content-text: #dddddd;
+  --gl-header-background: #000000;
+  --gl-header-selected-background: #452500;
+  --gl-tab-background: #111111;
+  --gl-tab-text: #999999;
+  --gl-tab-shadow: 2px -2px 2px rgba(0, 0, 0, 0.3);
+  --gl-tab-hover-background: #1a1a1a;
+  --gl-tab-active-background: #222222;
+  --gl-tab-active-text: #dddddd;
+  --gl-tab-active-shadow: 0 -2px 2px #000000;
+  --gl-control-color: #ffffff;
+  --gl-control-opacity: 0.4;
+  --gl-control-hover-background: rgba(255, 255, 255, 0.15);
+  --gl-splitter-hover-background: #444444;
+  --gl-drop-indicator-background: rgba(0, 0, 0, 0.2);
+  --gl-drop-indicator-border: 1px dashed #cccccc;
+  --gl-drop-indicator-shadow: inset 0 0 30px #000000;
+  --gl-drag-proxy-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+  --gl-menu-background: #222222;
+  --gl-menu-text: #dddddd;
+  --gl-menu-border: 1px solid #555555;
+  --gl-menu-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9);
+  --gl-menu-hover-background: #333333;
+  --gl-scrollbar-thumb: #444444;
+  --gl-scrollbar-thumb-hover: #666666;
+  --gl-title-input-background: #111111;
+  --gl-title-input-text: #eeeeee;
+  --gl-title-input-border: 1px solid #6aa8ff;
+  --gl-focus-ring: 2px solid #6aa8ff;
+}

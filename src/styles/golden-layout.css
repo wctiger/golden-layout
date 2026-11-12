@@ -1,0 +1,524 @@
+/*
+ * golden-layout base stylesheet.
+ *
+ * Everything that can be themed is a custom property declared on .gl-root below, with a
+ * neutral default. A theme is a rule that overrides some of them and contains nothing
+ * else: see examples/themes for four of them.
+ *
+ * The defaults sit in :where() so they have no specificity and any theme selector wins.
+ */
+
+:where(.gl-root) {
+  /* Typography */
+  --gl-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --gl-font-size: 13px;
+
+  /* Dimensions */
+  --gl-header-height: 26px;
+  --gl-tab-padding: 10px;
+  --gl-tab-gap: 1px;
+  --gl-tab-radius: 0px;
+  --gl-tab-max-width: 240px;
+  --gl-control-size: 20px;
+  --gl-splitter-size: 5px;
+  --gl-splitter-grab-size: 15px;
+  --gl-min-item-width: 40px;
+  --gl-min-item-height: 40px;
+  --gl-drag-proxy-width: 300px;
+  --gl-drag-proxy-height: 200px;
+
+  /* Layout background, visible through splitters and empty space */
+  --gl-background: #d4d4d4;
+
+  /* Panel area */
+  --gl-content-background: #ffffff;
+  --gl-content-text: #1f1f1f;
+  --gl-content-border: none;
+  --gl-content-shadow: none;
+
+  /* Headers and tabs */
+  --gl-header-background: #e8e8e8;
+  --gl-header-selected-background: #c5dcf7;
+  --gl-tab-background: transparent;
+  --gl-tab-text: #5a5a5a;
+  --gl-tab-border: none;
+  --gl-tab-shadow: none;
+  --gl-tab-hover-background: #dcdcdc;
+  --gl-tab-active-background: #ffffff;
+  --gl-tab-active-text: #1f1f1f;
+  --gl-tab-active-shadow: none;
+
+  /* Header buttons */
+  --gl-control-color: #5a5a5a;
+  --gl-control-opacity: 0.6;
+  --gl-control-hover-background: rgba(0, 0, 0, 0.1);
+
+  /* Splitters */
+  --gl-splitter-background: transparent;
+  --gl-splitter-hover-background: #8f8f8f;
+
+  /* Drag and drop */
+  --gl-drop-indicator-background: rgba(0, 0, 0, 0.1);
+  --gl-drop-indicator-border: 1px dashed rgba(0, 0, 0, 0.45);
+  --gl-drop-indicator-shadow: none;
+  --gl-drag-proxy-opacity: 0.92;
+  --gl-drag-proxy-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+
+  /* Tab overflow menu */
+  --gl-menu-background: #ffffff;
+  --gl-menu-text: #1f1f1f;
+  --gl-menu-border: 1px solid #b5b5b5;
+  --gl-menu-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --gl-menu-hover-background: #e8e8e8;
+
+  /* Panel scrollbars (Chromium) */
+  --gl-scrollbar-size: 10px;
+  --gl-scrollbar-radius: 5px;
+  --gl-scrollbar-track: transparent;
+  --gl-scrollbar-thumb: #b9b9b9;
+  --gl-scrollbar-thumb-hover: #8f8f8f;
+
+  /* Title field shown while a tab is renamed */
+  --gl-title-input-background: #ffffff;
+  --gl-title-input-text: #1f1f1f;
+  --gl-title-input-border: 1px solid #3b82d6;
+
+  /* Keyboard focus */
+  --gl-focus-ring: 2px solid #3b82d6;
+}
+
+/* ---- Root and layers ---- */
+
+.gl-root {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--gl-background);
+  font-family: var(--gl-font-family);
+  font-size: var(--gl-font-size);
+}
+
+/*
+ * Stacking order, bottom to top: the frame, the panels, the overlay. The frame is its own
+ * stacking context, so nothing inside it (a splitter, a maximized stack) can rise above
+ * the panel layer and take the pointer events meant for a panel.
+ */
+.gl-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+}
+
+.gl-panels,
+.gl-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.gl-empty {
+  flex: 1 1 0;
+}
+
+/* ---- Rows, columns and stacks ---- */
+
+.gl-row,
+.gl-column,
+.gl-stack {
+  display: flex;
+  flex: 1 1 0;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+}
+
+.gl-row {
+  flex-direction: row;
+}
+
+.gl-column {
+  flex-direction: column;
+}
+
+.gl-stack {
+  flex-direction: column;
+  min-width: var(--gl-min-item-width);
+  min-height: var(--gl-min-item-height);
+  overflow: hidden;
+}
+
+.gl-stack[data-header='bottom'] {
+  flex-direction: column-reverse;
+}
+
+.gl-stack[data-header='left'] {
+  flex-direction: row;
+}
+
+.gl-stack[data-header='right'] {
+  flex-direction: row-reverse;
+}
+
+/* A maximized stack covers the frame; everything else stays mounted but out of sight. */
+.gl-stack.gl-maximized {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.gl-frame.gl-has-maximized .gl-stack:not(.gl-maximized),
+.gl-frame.gl-has-maximized .gl-splitter {
+  visibility: hidden;
+}
+
+.gl-stack-content {
+  position: relative;
+  flex: 1 1 0;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  background: var(--gl-content-background);
+  border: var(--gl-content-border);
+  box-shadow: var(--gl-content-shadow);
+}
+
+/* ---- Panels ---- */
+
+.gl-panel {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: auto;
+  color: var(--gl-content-text);
+  pointer-events: auto;
+}
+
+/* The panel's own scrollbar, and the menus'. Content inside a panel keeps its own. */
+.gl-panel::-webkit-scrollbar,
+.gl-tab-menu::-webkit-scrollbar,
+.gl-context-menu::-webkit-scrollbar {
+  width: var(--gl-scrollbar-size);
+  height: var(--gl-scrollbar-size);
+}
+
+.gl-panel::-webkit-scrollbar-track,
+.gl-panel::-webkit-scrollbar-corner,
+.gl-tab-menu::-webkit-scrollbar-track,
+.gl-context-menu::-webkit-scrollbar-track {
+  background: var(--gl-scrollbar-track);
+}
+
+.gl-panel::-webkit-scrollbar-thumb,
+.gl-tab-menu::-webkit-scrollbar-thumb,
+.gl-context-menu::-webkit-scrollbar-thumb {
+  background: var(--gl-scrollbar-thumb);
+  border-radius: var(--gl-scrollbar-radius);
+}
+
+.gl-panel::-webkit-scrollbar-thumb:hover,
+.gl-tab-menu::-webkit-scrollbar-thumb:hover,
+.gl-context-menu::-webkit-scrollbar-thumb:hover {
+  background: var(--gl-scrollbar-thumb-hover);
+}
+
+.gl-panel-error {
+  padding: 8px;
+  white-space: pre-wrap;
+}
+
+/* ---- Headers and tabs ---- */
+
+.gl-header {
+  display: flex;
+  flex: none;
+  box-sizing: border-box;
+  block-size: var(--gl-header-height);
+  min-width: 0;
+  min-height: 0;
+  background: var(--gl-header-background);
+  user-select: none;
+}
+
+/* Logical sizes above and below let the same rules serve a header on the side. */
+.gl-stack[data-header='left'] > .gl-header,
+.gl-stack[data-header='right'] > .gl-header {
+  writing-mode: vertical-rl;
+}
+
+.gl-header.gl-selectable {
+  cursor: pointer;
+}
+
+.gl-stack.gl-selected > .gl-header {
+  background: var(--gl-header-selected-background);
+}
+
+.gl-tabs {
+  display: flex;
+  flex: 1 1 0;
+  gap: var(--gl-tab-gap);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.gl-tab {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  padding-inline: var(--gl-tab-padding);
+  border: var(--gl-tab-border);
+  border-start-start-radius: var(--gl-tab-radius);
+  border-start-end-radius: var(--gl-tab-radius);
+  background: var(--gl-tab-background);
+  box-shadow: var(--gl-tab-shadow);
+  color: var(--gl-tab-text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.gl-tab[data-reorderable='true'] {
+  touch-action: none;
+}
+
+.gl-tab:hover {
+  background: var(--gl-tab-hover-background);
+}
+
+.gl-tab.gl-active {
+  background: var(--gl-tab-active-background);
+  box-shadow: var(--gl-tab-active-shadow);
+  color: var(--gl-tab-active-text);
+}
+
+.gl-tab:focus-visible,
+.gl-control:focus-visible,
+.gl-tab-close:focus-visible {
+  outline: var(--gl-focus-ring);
+  outline-offset: -2px;
+}
+
+.gl-title {
+  max-inline-size: var(--gl-tab-max-width);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gl-title-input {
+  box-sizing: content-box;
+  max-inline-size: var(--gl-tab-max-width);
+  min-inline-size: 2ch;
+  margin: 0;
+  padding: 0 3px;
+  border: var(--gl-title-input-border);
+  border-radius: 2px;
+  outline: none;
+  background: var(--gl-title-input-background);
+  color: var(--gl-title-input-text);
+  font: inherit;
+  writing-mode: horizontal-tb;
+}
+
+.gl-tab.gl-editing {
+  cursor: default;
+}
+
+/* The consumer's controls for a stack, left of the built-in buttons. */
+.gl-stack-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  padding-inline-start: 4px;
+  color: var(--gl-control-color);
+}
+
+.gl-controls {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  padding-inline: 4px;
+}
+
+.gl-control,
+.gl-tab-close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  color: var(--gl-control-color);
+  font: inherit;
+  opacity: var(--gl-control-opacity);
+  cursor: pointer;
+}
+
+.gl-control {
+  inline-size: var(--gl-control-size);
+  block-size: var(--gl-control-size);
+}
+
+.gl-tab-close {
+  inline-size: 16px;
+  block-size: 16px;
+  color: inherit;
+}
+
+.gl-control:hover,
+.gl-tab-close:hover {
+  background: var(--gl-control-hover-background);
+  opacity: 1;
+}
+
+/* ---- Tab overflow menu ---- */
+
+.gl-tab-menu,
+.gl-context-menu {
+  position: absolute;
+  z-index: 2;
+  max-height: 60%;
+  margin: 0;
+  padding: 4px 0;
+  overflow: auto;
+  list-style: none;
+  background: var(--gl-menu-background);
+  border: var(--gl-menu-border);
+  box-shadow: var(--gl-menu-shadow);
+  color: var(--gl-menu-text);
+  pointer-events: auto;
+}
+
+.gl-context-menu {
+  min-width: 160px;
+  outline: none;
+}
+
+.gl-tab-menu > li,
+.gl-context-menu > li {
+  padding: 4px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.gl-tab-menu > li:hover,
+.gl-context-menu > li.gl-active {
+  background: var(--gl-menu-hover-background);
+}
+
+.gl-tab-menu > li.gl-active {
+  font-weight: 600;
+}
+
+.gl-context-menu > li.gl-separator {
+  margin-top: 4px;
+  border-top: var(--gl-menu-border);
+  padding-top: 8px;
+}
+
+.gl-context-menu > li[aria-disabled='true'] {
+  cursor: default;
+  opacity: 0.45;
+}
+
+/* ---- Splitters ---- */
+
+.gl-splitter {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  background: var(--gl-splitter-background);
+  touch-action: none;
+}
+
+.gl-splitter:hover,
+.gl-splitter.gl-dragging {
+  background: var(--gl-splitter-hover-background);
+}
+
+.gl-row > .gl-splitter {
+  width: var(--gl-splitter-size);
+  cursor: col-resize;
+}
+
+.gl-column > .gl-splitter {
+  height: var(--gl-splitter-size);
+  cursor: row-resize;
+}
+
+/* Shows where the edge will be while a splitter is dragged; the resize happens on release. */
+.gl-splitter-ghost {
+  position: absolute;
+  z-index: 3;
+  background: var(--gl-splitter-hover-background);
+  pointer-events: none;
+}
+
+/* A wider, invisible grab area centred on the splitter. */
+.gl-splitter::before {
+  position: absolute;
+  content: '';
+}
+
+.gl-row > .gl-splitter::before {
+  top: 0;
+  bottom: 0;
+  left: calc((var(--gl-splitter-size) - var(--gl-splitter-grab-size)) / 2);
+  width: var(--gl-splitter-grab-size);
+}
+
+.gl-column > .gl-splitter::before {
+  right: 0;
+  left: 0;
+  top: calc((var(--gl-splitter-size) - var(--gl-splitter-grab-size)) / 2);
+  height: var(--gl-splitter-grab-size);
+}
+
+/* ---- Drag and drop ---- */
+
+.gl-drop-indicator {
+  position: absolute;
+  z-index: 1;
+  box-sizing: border-box;
+  background: var(--gl-drop-indicator-background);
+  border: var(--gl-drop-indicator-border);
+  box-shadow: var(--gl-drop-indicator-shadow);
+  pointer-events: none;
+}
+
+.gl-drag-proxy {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  width: var(--gl-drag-proxy-width);
+  height: var(--gl-drag-proxy-height);
+  box-shadow: var(--gl-drag-proxy-shadow);
+  opacity: var(--gl-drag-proxy-opacity);
+  pointer-events: none;
+}
+
+.gl-drag-proxy-header {
+  display: flex;
+  flex: none;
+  height: var(--gl-header-height);
+  background: var(--gl-header-background);
+}
+
+.gl-drag-proxy-content {
+  flex: 1 1 0;
+  min-height: 0;
+  background: var(--gl-content-background);
+}
+
+.gl-root.gl-dragging,
+.gl-root.gl-dragging * {
+  cursor: move;
+}

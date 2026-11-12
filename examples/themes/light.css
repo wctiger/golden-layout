@@ -1,0 +1,29 @@
+/* Light theme: variable overrides only. Apply with className="gl-theme-light". */
+.gl-theme-light.gl-root,
+.gl-theme-light .gl-root {
+  --gl-background: #f4f4f4;
+  --gl-content-background: #e1e1e1;
+  --gl-content-text: #000000;
+  --gl-content-border: 1px solid #cccccc;
+  --gl-header-background: transparent;
+  --gl-header-selected-background: #f1d7b4;
+  --gl-tab-background: #fafafa;
+  --gl-tab-text: #888888;
+  --gl-tab-border: 1px solid #cccccc;
+  --gl-tab-hover-background: #f0f0f0;
+  --gl-tab-active-background: #e1e1e1;
+  --gl-tab-active-text: #555555;
+  --gl-tab-active-shadow: 2px -2px 2px -2px rgba(0, 0, 0, 0.2);
+  --gl-control-color: #000000;
+  --gl-control-opacity: 0.4;
+  --gl-splitter-hover-background: #bbbbbb;
+  --gl-drop-indicator-background: rgba(0, 0, 0, 0.1);
+  --gl-drop-indicator-border: 1px dashed #777777;
+  --gl-drop-indicator-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
+  --gl-drag-proxy-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  --gl-menu-background: #fafafa;
+  --gl-menu-border: 1px solid #cccccc;
+  --gl-menu-hover-background: #e1e1e1;
+  --gl-scrollbar-thumb: #bbbbbb;
+  --gl-scrollbar-thumb-hover: #999999;
+}
