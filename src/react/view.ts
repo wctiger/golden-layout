@@ -91,8 +91,10 @@ export class LayoutView {
         target = this.dragOverride!.element;
       } else {
         const stack = index.get(panelId)?.parent;
-        if (stack?.type === 'stack' && stack.activeId === panelId)
+        const covered = state.maximisedId !== null && state.maximisedId !== stack?.id;
+        if (stack?.type === 'stack' && stack.activeId === panelId && !covered) {
           target = this.slots.get(stack.id);
+        }
       }
       if (!target) {
         plan.push([host, null, false]);

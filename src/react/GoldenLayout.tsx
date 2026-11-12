@@ -71,10 +71,13 @@ function Positioner(): ReactNode {
 }
 
 function Frame(): ReactNode {
-  const rootId = useLayoutSelector((state) => state.maximisedId ?? state.root?.id ?? null);
+  const rootId = useLayoutSelector((state) => state.root?.id ?? null);
+  const maximised = useLayoutSelector((state) => state.maximisedId !== null);
+  // The whole frame stays mounted while a stack is maximised: CSS lifts that stack over the
+  // rest, so maximising and restoring is a class change rather than a remount.
   return (
-    <div className="gl-frame">
-      {rootId === null ? <div className="gl-empty" /> : <NodeView key={rootId} id={rootId} />}
+    <div className={maximised ? 'gl-frame gl-has-maximised' : 'gl-frame'}>
+      {rootId === null ? <div className="gl-empty" /> : <NodeView id={rootId} />}
     </div>
   );
 }

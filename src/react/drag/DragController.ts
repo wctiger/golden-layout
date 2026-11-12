@@ -60,7 +60,12 @@ function clamp(value: number, min: number, max: number): number {
 
 /** Measures the frame as it stands. The tree is not changed during a drag, so once is enough. */
 export function readGeometry(root: HTMLElement): LayoutGeometry {
-  const stacks = Array.from(root.querySelectorAll<HTMLElement>('.gl-stack')).map((element) => {
+  // While a stack is maximised it is the whole layout as far as dropping is concerned.
+  const maximised = root.querySelector<HTMLElement>('.gl-stack.gl-maximised');
+  const elements = maximised
+    ? [maximised]
+    : Array.from(root.querySelectorAll<HTMLElement>('.gl-stack'));
+  const stacks = elements.map((element) => {
     const header = element.querySelector<HTMLElement>(':scope > .gl-header');
     const body = element.querySelector<HTMLElement>(':scope > .gl-stack-content');
     const position = element.dataset.header;
@@ -76,7 +81,8 @@ export function readGeometry(root: HTMLElement): LayoutGeometry {
       body: toRect((body ?? element).getBoundingClientRect()),
     };
   });
-  const rootItem = root.querySelector<HTMLElement>(':scope > .gl-frame > [data-item-id]');
+  const rootItem =
+    maximised ?? root.querySelector<HTMLElement>(':scope > .gl-frame > [data-item-id]');
   return {
     bounds: toRect(root.getBoundingClientRect()),
     root: rootItem

@@ -144,6 +144,18 @@
   flex-direction: row-reverse;
 }
 
+/* A maximised stack covers the frame; everything else stays mounted but out of sight. */
+.gl-stack.gl-maximised {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.gl-frame.gl-has-maximised .gl-stack:not(.gl-maximised),
+.gl-frame.gl-has-maximised .gl-splitter {
+  visibility: hidden;
+}
+
 .gl-stack-content {
   position: relative;
   flex: 1 1 0;

@@ -216,9 +216,12 @@ describe('maximise', () => {
     expect(item(root, 'top').classList.contains('gl-maximised')).toBe(true);
     expect(isShown(panelElement(root, 'a'))).toBe(false);
     expect(isShown(panelElement(root, 'd'))).toBe(false);
-    expect(root.querySelector('.gl-control.gl-maximise')?.getAttribute('title')).toBe('minimise');
+    const button = item(root, 'top').querySelector('.gl-control.gl-maximise')!;
+    expect(button.getAttribute('title')).toBe('minimise');
+    expect(height(item(root, 'top'))).toBe(600);
+    expect(getComputedStyle(item(root, 'left')).visibility).toBe('hidden');
 
-    await userEvent.click(root.querySelector('.gl-control.gl-maximise')!);
+    await userEvent.click(button);
 
     expect(layout.getState().maximisedId).toBeNull();
     await expect.poll(() => isShown(panelElement(root, 'a'))).toBe(true);

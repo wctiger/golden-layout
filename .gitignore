@@ -3,3 +3,5 @@ dist
 .DS_Store
 bench/results/*.json
 *.log
+bench/dist
+bench/dist-size
