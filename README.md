@@ -3,7 +3,7 @@
 A docking layout manager for React 18+: rows, columns and tabbed stacks of panels that users
 resize, reorder, re-dock by drag and drop, and maximize.
 
-[Open the live demo](https://wctiger.github.io/golden-layout/)
+[Open the live demo](https://wctiger.github.io/golden-layout/) · [Browse the examples](./examples)
 
 This is a ground-up rewrite of the jQuery-era golden-layout 1.x. It is written in TypeScript,
 renders entirely with React, and has no runtime dependency other than React. It is **not
@@ -15,56 +15,8 @@ compatible** with 1.x: see [Differences from 1.x](#differences-from-1x).
 - The layout is one serializable object. `JSON.stringify(layout)` saves it.
 - Styling is plain CSS custom properties. A theme is a block of variable overrides.
 
-## Install
-
-```sh
-npm install golden-layout
-```
-
-React and React DOM 18 or later are peer dependencies. The package is ESM only and ships its
-own types.
-
-## Quick start
-
-```tsx
-import { GoldenLayout } from 'golden-layout';
-import type { LayoutConfig } from 'golden-layout';
-import 'golden-layout/style.css';
-
-function Hello({ name }: { name: string }) {
-  return <p>Hello, {name}</p>;
-}
-
-const initialLayout: LayoutConfig = {
-  root: {
-    type: 'row',
-    children: [
-      { type: 'panel', component: 'hello', title: 'First', props: { name: 'one' } },
-      {
-        type: 'stack',
-        children: [
-          { type: 'panel', component: 'hello', title: 'Second', props: { name: 'two' } },
-          { type: 'panel', component: 'hello', title: 'Third', props: { name: 'three' } },
-        ],
-      },
-    ],
-  },
-};
-
-export function App() {
-  return (
-    <div style={{ height: '100vh' }}>
-      <GoldenLayout
-        components={{ hello: Hello }}
-        initialLayout={initialLayout}
-        onChange={(state) => localStorage.setItem('layout', JSON.stringify(state))}
-      />
-    </div>
-  );
-}
-```
-
-`<GoldenLayout>` fills its parent, so the parent needs a size.
+This React rewrite is unpublished. To run the demo or build the library from source, see
+[Development](#development).
 
 ## The layout schema
 
@@ -415,8 +367,7 @@ overrides:
 ```
 
 Switching themes is swapping that class; nothing re-renders. Four example themes (dark, light,
-soda and translucent, ported from 1.x) are in [`examples/themes`](./examples/themes). They are
-examples to copy, not part of the published package.
+soda and translucent, ported from 1.x) are in [`examples/themes`](./examples/themes). Copy one as a starting point for your own theme.
 
 All class names use the `gl-` prefix.
 
@@ -489,6 +440,18 @@ panel scrollbars use `::-webkit-scrollbar` and appear only there; nothing else d
 
 Nothing from 1.x carries over unchanged: the JavaScript API, the config format and the CSS
 class names are all new.
+
+**Added in [PR #11](https://github.com/wctiger/golden-layout/pull/11)**
+
+- Rename a tab in place by double-clicking its title or pressing F2.
+- Open the customizable tab menu with a right-click or Shift+F10 to rename a tab or close
+  multiple tabs at once.
+- Add controls to a stack header with `renderStackActions`.
+- Close and maximize controls include the panel title in their tooltips. Labels can vary by panel.
+- Panels have styled scrollbars with CSS variables for their size and colors.
+
+The [benchmark report](./bench/REPORT.md) compares the rewrite with 1.5.9 on interaction
+timing, retained memory and bundle size.
 
 **Removed**
 

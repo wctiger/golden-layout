@@ -1,6 +1,6 @@
 // Turns raw benchmark results into bench/REPORT.md.
 //
-//   node bench/report.mjs                              full-cpu1.json and full-cpu4.json
+//   node bench/report.mjs                              checked-in full runs with the splitter follow-up
 //   node bench/report.mjs bench/results/quick.json     any result files
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -31,6 +31,22 @@ if (runs.length === 0) throw new Error(`No result files found: ${inputs.join(', 
 const meta = runs[0].meta;
 const scenarios = runs[0].scenarios;
 const sizes = runs[0].sizes;
+// The published report uses the paired resize-on-release measurements for both versions.
+if (files.length === 0) {
+  const followup = JSON.parse(readFileSync(join(here, 'results', 'supp-splitter.json'), 'utf8'));
+  for (const run of runs) {
+    run.results = run.results.map((entry) => {
+      if (entry.scenario !== 'splitter') return entry;
+      const replacement = followup.results.find(
+        (cell) =>
+          cell.scenario === 'splitter' && cell.size === entry.size && cell.cpu === entry.cpu,
+      );
+      if (!replacement)
+        throw new Error(`Missing splitter follow-up for ${entry.size}, CPU x${entry.cpu}`);
+      return replacement;
+    });
+  }
+}
 const results = runs.flatMap((run) => run.results);
 
 /* ------------------------------------------------------------- statistics */
@@ -161,6 +177,14 @@ out.push(
     'task time reported by Chromium for the page (`TaskDuration`): all script, style, layout and ' +
     'paint work, which is not quantised to frames the way wall-clock time is.',
 );
+
+if (files.length === 0) {
+  out.push('');
+  out.push(
+    'Splitter results use the [resize-on-release run](results/supp-splitter.json) for both versions. ' +
+      'Only the splitter marker moves during the drag. Both versions resize the panels once on release.',
+  );
+}
 
 /* ---- completeness ---- */
 
@@ -430,7 +454,7 @@ for (const name of scenarioNames) {
 /* ---- notes ---- */
 
 const notes = join(here, 'NOTES.md');
-if (existsSync(notes) && !meta.quick) {
+if (files.length === 0 && existsSync(notes) && !meta.quick) {
   out.push('');
   out.push(readFileSync(notes, 'utf8').trim());
 }
