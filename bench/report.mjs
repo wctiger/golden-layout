@@ -38,9 +38,11 @@ if (files.length === 0) {
     run.results = run.results.map((entry) => {
       if (entry.scenario !== 'splitter') return entry;
       const replacement = followup.results.find(
-        (cell) => cell.scenario === 'splitter' && cell.size === entry.size && cell.cpu === entry.cpu,
+        (cell) =>
+          cell.scenario === 'splitter' && cell.size === entry.size && cell.cpu === entry.cpu,
       );
-      if (!replacement) throw new Error(`Missing splitter follow-up for ${entry.size}, CPU x${entry.cpu}`);
+      if (!replacement)
+        throw new Error(`Missing splitter follow-up for ${entry.size}, CPU x${entry.cpu}`);
       return replacement;
     });
   }
