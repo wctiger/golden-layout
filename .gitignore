@@ -1,7 +1,8 @@
 node_modules
 dist
 .DS_Store
-bench/results/*.json
+bench/results/quick.json
+bench/results/smoke.json
 *.log
 bench/dist
 bench/dist-size

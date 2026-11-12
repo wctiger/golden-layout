@@ -83,21 +83,24 @@ export class LayoutView {
     const originX = rootRect.left + root.clientLeft;
     const originY = rootRect.top + root.clientTop;
 
-    const plan: [HTMLElement, Box | null, boolean][] = [];
+    const plan: [HTMLElement, Box | null, boolean, boolean][] = [];
     for (const [panelId, host] of this.hosts) {
       const dragged = this.dragOverride?.panelId === panelId;
       let target: HTMLElement | undefined;
+      // Behind a maximized stack a panel keeps its box and is only made invisible, so that
+      // maximizing and restoring never lays its content out again.
+      let covered = false;
       if (dragged) {
         target = this.dragOverride!.element;
       } else {
         const stack = index.get(panelId)?.parent;
-        const covered = state.maximizedId !== null && state.maximizedId !== stack?.id;
-        if (stack?.type === 'stack' && stack.activeId === panelId && !covered) {
+        covered = state.maximizedId !== null && state.maximizedId !== stack?.id;
+        if (stack?.type === 'stack' && stack.activeId === panelId) {
           target = this.slots.get(stack.id);
         }
       }
       if (!target) {
-        plan.push([host, null, false]);
+        plan.push([host, null, false, false]);
         continue;
       }
       const rect = target.getBoundingClientRect();
@@ -110,12 +113,13 @@ export class LayoutView {
           height: rect.height,
         },
         dragged,
+        covered,
       ]);
     }
 
-    for (const [host, box, dragged] of plan) {
+    for (const [host, box, dragged, covered] of plan) {
       const key = box
-        ? `${dragged ? 'f' : 'a'}:${box.left}:${box.top}:${box.width}:${box.height}`
+        ? `${dragged ? 'f' : covered ? 'c' : 'a'}:${box.left}:${box.top}:${box.width}:${box.height}`
         : 'hidden';
       if (this.applied.get(host) === key) continue;
       this.applied.set(host, key);
@@ -125,6 +129,7 @@ export class LayoutView {
         continue;
       }
       style.display = '';
+      style.visibility = covered ? 'hidden' : '';
       style.position = dragged ? 'fixed' : '';
       style.zIndex = dragged ? '1001' : '';
       style.pointerEvents = dragged ? 'none' : '';

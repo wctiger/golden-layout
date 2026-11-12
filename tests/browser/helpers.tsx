@@ -74,5 +74,6 @@ export function panelElement(root: ParentNode, id: string): HTMLElement {
 }
 
 export function isShown(element: HTMLElement): boolean {
-  return getComputedStyle(element).display !== 'none';
+  const style = getComputedStyle(element);
+  return style.display !== 'none' && style.visibility !== 'hidden';
 }
