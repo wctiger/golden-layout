@@ -11,6 +11,7 @@ import type {
   LayoutNode,
   LayoutState,
   NodeConfig,
+  NodeOfType,
   NodeType,
   PanelConfig,
   PanelNode,
@@ -59,7 +60,7 @@ export interface Layout {
   getById(id: string): LayoutNode | undefined;
   getParent(id: string): ContainerNode | null;
   /** Items of a type, in the whole layout or beneath `scope`. */
-  getByType<T extends NodeType>(type: T, scope?: LayoutNode): Extract<LayoutNode, { type: T }>[];
+  getByType<T extends NodeType>(type: T, scope?: LayoutNode): NodeOfType<T>[];
   getByComponent(component: string, scope?: LayoutNode): PanelNode[];
   filter(predicate: (node: LayoutNode) => boolean, scope?: LayoutNode): LayoutNode[];
 }

@@ -44,6 +44,12 @@ export interface RowOrColumnNode {
 export type ContainerNode = RowOrColumnNode | StackNode;
 export type LayoutNode = ContainerNode | PanelNode;
 export type NodeType = LayoutNode['type'];
+/** The node shape for a given `type` value. */
+export type NodeOfType<T extends NodeType> = T extends 'panel'
+  ? PanelNode
+  : T extends 'stack'
+    ? StackNode
+    : RowOrColumnNode;
 
 /** The complete, serializable state of a layout. */
 export interface LayoutState {

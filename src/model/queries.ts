@@ -1,5 +1,12 @@
 import { getIndex, walk } from './tree';
-import type { ContainerNode, LayoutNode, LayoutState, NodeType, PanelNode } from './types';
+import type {
+  ContainerNode,
+  LayoutNode,
+  LayoutState,
+  NodeOfType,
+  NodeType,
+  PanelNode,
+} from './types';
 
 /** A whole layout, or any node to search beneath (the node itself is not included). */
 export type Scope = LayoutState | LayoutNode;
@@ -24,11 +31,8 @@ export function findById(scope: Scope, id: string): LayoutNode | undefined {
   return filterItems(scope, (node) => node.id === id)[0];
 }
 
-export function findByType<T extends NodeType>(
-  scope: Scope,
-  type: T,
-): Extract<LayoutNode, { type: T }>[] {
-  return filterItems(scope, (node) => node.type === type) as Extract<LayoutNode, { type: T }>[];
+export function findByType<T extends NodeType>(scope: Scope, type: T): NodeOfType<T>[] {
+  return filterItems(scope, (node) => node.type === type) as NodeOfType<T>[];
 }
 
 export function findByComponent(scope: Scope, component: string): PanelNode[] {
