@@ -1,42 +1,26 @@
 ## Reading the results
 
-Across the 72 measured cells the rewrite is measurably better in 42, measurably more than 10%
-worse in 18, and within noise in the rest. The 18 fall into four groups, each with a cause.
+Across the 72 cells the rewrite is measurably better in 45, measurably more than 10% worse in 12,
+and within noise in the rest. The 12 fall into three groups, each with a cause.
 
-### Splitter drag: the two versions do different work (6 cells)
+### Splitter drag: resize on release, as legacy does
 
-The legacy layout only moves the splitter bar while you drag and resizes the panels once, on
-release. The rewrite resizes the panels on every pointer move, so the content reflows live. The
-whole-gesture figure therefore compares 60 live resizes with one deferred resize.
+Both versions move only a marker while the splitter is dragged and resize the panels once, on
+release. The splitter rows are a re-measurement made after the rewrite was changed to work this
+way; the first full run measured an earlier build that resized live on every pointer move.
 
 | 64 panels       | Per move, legacy | Per move, rewrite | On release, legacy | On release, rewrite |
 | --------------- | ---------------- | ----------------- | ------------------ | ------------------- |
-| Unthrottled     | 2.4 ms           | 11.2 ms           | 36.6 ms            | 3.2 ms              |
-| 4x CPU throttle | 9.3 ms           | 44.3 ms           | 181 ms             | 13.3 ms             |
+| Unthrottled     | 2.3 ms           | 2.2 ms            | 38.0 ms            | 18.8 ms             |
+| 4x CPU throttle | 12.4 ms          | 9.6 ms            | 228 ms             | 87 ms               |
 
-- Unthrottled, every frame of the rewrite's drag fits in 16.7 ms at every size: no dropped frames.
-- Under a 4x CPU throttle with 64 panels (16 visible at once), it does not: a move costs 44 ms,
-  the p95 frame gap is 33 ms, and 55 of 60 frames are late. The drag runs at about 30 frames a
-  second. At 16 panels it drops 3 of 60 frames.
-- Legacy stays smooth during the drag in every cell, then blocks for up to 181 ms on release.
-
-**Changed after this run, and measured again.** The splitter now behaves as legacy does: dragging
-moves a marker and the panels are resized once, on release. The splitter rows in the main tables
-describe the earlier live-resize build. Re-measured on the benchmark build plus that one change
-(`bench/results/supp-splitter.json`, 20 samples per cell):
-
-| Whole splitter gesture | Legacy | Rewrite, resize on release | Verdict                  |
-| ---------------------- | ------ | -------------------------- | ------------------------ |
-| 4 panels, unthrottled  | 111 ms | 102 ms                     | no measurable difference |
-| 16 panels, unthrottled | 146 ms | 119 ms                     | rewrite better (-18%)    |
-| 64 panels, unthrottled | 178 ms | 150 ms                     | no measurable difference |
-| 4 panels, 4x throttle  | 493 ms | 466 ms                     | no measurable difference |
-| 16 panels, 4x throttle | 725 ms | 554 ms                     | rewrite better (-24%)    |
-| 64 panels, 4x throttle | 936 ms | 669 ms                     | rewrite better (-29%)    |
-
-No cell is worse than legacy any more, and the rewrite drops no frames in any of them: with 64
-panels under the throttle a move costs 9.6 ms and the release 87 ms, against 12.4 ms and 228 ms
-for legacy. With this change, 12 of the 72 cells remain more than 10% worse, not 18.
+- No splitter cell is worse than legacy; the rewrite is measurably better at 16 panels, and at 64
+  panels under the throttle.
+- Neither version drops frames during the drag. The release costs the rewrite less than half of
+  what it costs legacy at 16 and 64 panels.
+- The live-resize build, now replaced, was up to 3.7 times slower over the whole gesture and fell
+  to about 30 frames a second with 64 panels under the throttle. That result is why the behaviour
+  was changed.
 
 ### Shared data update: panels are scroll containers (6 cells)
 
@@ -60,9 +44,6 @@ Clipped, no size shows a measurable difference from legacy. So one React tree do
 than a root per panel here; scrolling panels do. Scrolling is the shipped default because a panel
 whose content overflows is otherwise unreachable. A panel that manages its own scrolling can set
 `overflow: hidden` on `.gl-panel` and get the cheaper paint.
-
-The same run moves the splitter gesture only a little (453 ms against 677 ms at 64 panels), so
-scrolling was a small part of that gap and live resizing was the rest.
 
 ### Maximise and restore (3 cells), partly fixed after the run
 
@@ -120,7 +101,7 @@ why it reads as worse there. This check is a single run per version.
 
 ## Decision on the missed target
 
-The plan asks for each missed target to be fixed or explicitly accepted. The splitter was fixed.
+The plan asks for each missed target to be fixed or explicitly accepted. The splitter was fixed by resizing on release.
 The 12 cells that remain more than 10% slower (shared-data updates, maximise at 16 and 64 panels,
 and the 50-cycle memory figure) were reviewed with their causes above and accepted as documented
 by the repository owner on 2026-11-12.

@@ -28,6 +28,31 @@ const runs = inputs
   .map((file) => JSON.parse(readFileSync(file, 'utf8')));
 if (runs.length === 0) throw new Error(`No result files found: ${inputs.join(', ')}`);
 
+/**
+ * Re-measurements that supersede cells of the main runs: a cell in an override file replaces
+ * the main cell with the same scenario, size and CPU setting. Only used for the default report.
+ */
+const OVERRIDES = [
+  {
+    file: 'supp-splitter.json',
+    note:
+      'measured again after the splitter was changed to resize on release, on the benchmark ' +
+      'build plus that one change',
+  },
+];
+const overrides = (files.length ? [] : OVERRIDES)
+  .map((override) => ({ ...override, path: join(here, 'results', override.file) }))
+  .filter((override) => existsSync(override.path))
+  .map((override) => ({ ...override, run: JSON.parse(readFileSync(override.path, 'utf8')) }));
+const sameCell = (a, b) => a.scenario === b.scenario && a.size === b.size && a.cpu === b.cpu;
+for (const override of overrides) {
+  for (const run of runs) {
+    run.results = run.results.map(
+      (entry) => override.run.results.find((replacement) => sameCell(entry, replacement)) ?? entry,
+    );
+  }
+}
+
 const meta = runs[0].meta;
 const scenarios = runs[0].scenarios;
 const sizes = runs[0].sizes;
@@ -161,6 +186,16 @@ out.push(
     'task time reported by Chromium for the page (`TaskDuration`): all script, style, layout and ' +
     'paint work, which is not quantised to frames the way wall-clock time is.',
 );
+for (const override of overrides) {
+  const replaced = [
+    ...new Set(override.run.results.map((entry) => scenarios[entry.scenario].title)),
+  ];
+  out.push('');
+  out.push(
+    `The rows for ${replaced.join(', ')} come from \`bench/results/${override.file}\`: ` +
+      `${override.note} (${override.run.meta.samples} samples per cell).`,
+  );
+}
 
 /* ---- completeness ---- */
 
