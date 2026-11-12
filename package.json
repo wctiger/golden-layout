@@ -36,8 +36,9 @@
   },
   "scripts": {
     "dev": "vp dev examples/demo",
+    "dev:trading": "vp dev examples/trading",
     "build": "vp pack",
-    "build:examples": "vp build examples/demo --base ./",
+    "build:examples": "vp build examples/demo --base ./ && vp build examples/trading --base ./ --outDir ../demo/dist/trading --emptyOutDir",
     "test": "vp test run",
     "check": "vp check",
     "check:fix": "vp check --fix",

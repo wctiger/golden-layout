@@ -256,6 +256,9 @@ export function App(): ReactNode {
             Reset
           </button>
         </span>
+        <a className="demo-link" href="./trading/">
+          Trading desk demo
+        </a>
       </div>
       <div className="demo-layout">
         <GoldenLayout
