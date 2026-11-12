@@ -1,1 +1,78 @@
-/* golden-layout base styles */
+/*
+ * golden-layout base styles.
+ *
+ * Structure only, plus neutral defaults. Every colour and dimension is a custom property
+ * declared on .gl-root, so a theme is a block of overrides and nothing else.
+ */
+
+.gl-root {
+  --gl-min-item-width: 40px;
+  --gl-min-item-height: 40px;
+
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.gl-frame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.gl-empty {
+  flex: 1 1 0;
+}
+
+.gl-row,
+.gl-column,
+.gl-stack {
+  display: flex;
+  flex: 1 1 0;
+  box-sizing: border-box;
+}
+
+.gl-row {
+  flex-direction: row;
+}
+
+.gl-column {
+  flex-direction: column;
+}
+
+.gl-stack {
+  flex-direction: column;
+  min-width: var(--gl-min-item-width);
+  min-height: var(--gl-min-item-height);
+  overflow: hidden;
+}
+
+.gl-stack-content {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.gl-panels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.gl-panel {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: auto;
+  pointer-events: auto;
+}
+
+.gl-panel-error {
+  padding: 8px;
+  font:
+    13px/1.4 system-ui,
+    sans-serif;
+  white-space: pre-wrap;
+}

@@ -40,6 +40,17 @@ export default defineConfig({
       },
       {
         extends: true,
+        resolve: { dedupe: ['react', 'react-dom'] },
+        optimizeDeps: {
+          include: [
+            'react',
+            'react-dom',
+            'react-dom/client',
+            'react/jsx-runtime',
+            'react/jsx-dev-runtime',
+            'vitest-browser-react',
+          ],
+        },
         test: {
           name: 'browser',
           include: ['tests/browser/**/*.test.tsx'],

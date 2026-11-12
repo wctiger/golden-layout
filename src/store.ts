@@ -27,11 +27,11 @@ export type LayoutListener = (state: LayoutState, action: Action, previous: Layo
  */
 export interface Layout {
   /** The current state: plain, immutable, serializable data. */
-  getState(): LayoutState;
+  getState: () => LayoutState;
   /** Same as `getState`, so `JSON.stringify(layout)` saves the layout. */
-  toJSON(): LayoutState;
-  subscribe(listener: LayoutListener): () => void;
-  dispatch(action: Action): void;
+  toJSON: () => LayoutState;
+  subscribe: (listener: LayoutListener) => () => void;
+  dispatch: (action: Action) => void;
 
   /** Adds an item and returns its id. Without `to` it joins the root. */
   addItem(item: NodeConfig, to?: Destination): string;
