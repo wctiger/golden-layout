@@ -350,10 +350,23 @@ whole-gesture figure therefore compares 60 live resizes with one deferred resize
   second. At 16 panels it drops 3 of 60 frames.
 - Legacy stays smooth during the drag in every cell, then blocks for up to 181 ms on release.
 
-**Changed after this run.** The splitter now behaves as legacy does: dragging moves a marker
-and the panels are resized once, on release. The splitter rows in this report describe the
-earlier live-resize build and were not measured again, so they overstate the current cost of a
-drag. The 6 cells flagged here should no longer apply; that is an expectation, not a measurement.
+**Changed after this run, and measured again.** The splitter now behaves as legacy does: dragging
+moves a marker and the panels are resized once, on release. The splitter rows in the main tables
+describe the earlier live-resize build. Re-measured on the benchmark build plus that one change
+(`bench/results/supp-splitter.json`, 20 samples per cell):
+
+| Whole splitter gesture | Legacy | Rewrite, resize on release | Verdict                  |
+| ---------------------- | ------ | -------------------------- | ------------------------ |
+| 4 panels, unthrottled  | 111 ms | 102 ms                     | no measurable difference |
+| 16 panels, unthrottled | 146 ms | 119 ms                     | rewrite better (-18%)    |
+| 64 panels, unthrottled | 178 ms | 150 ms                     | no measurable difference |
+| 4 panels, 4x throttle  | 493 ms | 466 ms                     | no measurable difference |
+| 16 panels, 4x throttle | 725 ms | 554 ms                     | rewrite better (-24%)    |
+| 64 panels, 4x throttle | 936 ms | 669 ms                     | rewrite better (-29%)    |
+
+No cell is worse than legacy any more, and the rewrite drops no frames in any of them: with 64
+panels under the throttle a move costs 9.6 ms and the release 87 ms, against 12.4 ms and 228 ms
+for legacy. With this change, 12 of the 72 cells remain more than 10% worse, not 18.
 
 ### Shared data update: panels are scroll containers (6 cells)
 
