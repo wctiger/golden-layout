@@ -3,6 +3,8 @@
 A docking layout manager for React 18+: rows, columns and tabbed stacks of panels that users
 resize, reorder, re-dock by drag and drop, and maximize.
 
+[Open the live demo](https://wctiger.github.io/golden-layout/)
+
 This is a ground-up rewrite of the jQuery-era golden-layout 1.x. It is written in TypeScript,
 renders entirely with React, and has no runtime dependency other than React. It is **not
 compatible** with 1.x: see [Differences from 1.x](#differences-from-1x).
