@@ -121,7 +121,7 @@ describe('layout of the frame', () => {
 });
 
 describe('splitters', () => {
-  it('resizes its neighbours on drag, commits once, and re-renders no panel', async () => {
+  it('moves only a marker while dragging, then resizes once on release', async () => {
     const actions: string[] = [];
     const { root, layout } = await mount(twoByOne, {
       onChange: (_state: unknown, action: { type: string }) => actions.push(action.type),
@@ -132,12 +132,21 @@ describe('splitters', () => {
 
     await mouseDrag(start, { x: start.x + 100, y: start.y }, { release: false });
 
-    // Mid-drag: the frame and the panel have moved, the layout state has not.
-    expect(width(item(root, 'left'))).toBeCloseTo(497.5, 0);
-    expect(width(panelElement(root, 'a'))).toBeCloseTo(497.5, 0);
+    // Mid-drag: nothing has been resized. A marker shows where the edge will land.
+    expect(width(item(root, 'left'))).toBeCloseTo(397.5, 0);
+    expect(width(panelElement(root, 'a'))).toBeCloseTo(397.5, 0);
     expect(actions).toEqual([]);
+    const ghost = root.querySelector('.gl-splitter-ghost')!.getBoundingClientRect();
+    expect(ghost.left).toBeCloseTo(splitter.getBoundingClientRect().left + 100, 0);
+    expect(ghost.width).toBe(5);
+    expect(ghost.height).toBe(600);
+    const point = { x: ghost.left + 2, y: ghost.top + 100 };
+    expect(document.elementFromPoint(point.x, point.y)?.closest('.gl-panel')).not.toBeNull();
+    expect(splitter.classList.contains('gl-dragging')).toBe(true);
 
     await userEvent.pointer('[/MouseLeft]');
+
+    expect(root.querySelector('.gl-splitter-ghost')).toBeNull();
 
     expect(actions).toEqual(['resize']);
     const [first, second] = (layout.getState().root as RowOrColumnNode).children;

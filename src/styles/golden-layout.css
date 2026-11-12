@@ -453,6 +453,14 @@
   cursor: row-resize;
 }
 
+/* Shows where the edge will be while a splitter is dragged; the resize happens on release. */
+.gl-splitter-ghost {
+  position: absolute;
+  z-index: 3;
+  background: var(--gl-splitter-hover-background);
+  pointer-events: none;
+}
+
 /* A wider, invisible grab area centred on the splitter. */
 .gl-splitter::before {
   position: absolute;

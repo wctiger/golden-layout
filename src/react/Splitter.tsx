@@ -1,5 +1,6 @@
-import { useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import type { RowOrColumnNode } from '../model/types';
 import { useLayoutContext } from './context';
 
@@ -27,14 +28,13 @@ export function minimumSize(element: HTMLElement, horizontal: boolean): number {
 interface DragState {
   pointerId: number;
   start: number;
-  before: HTMLElement;
-  after: HTMLElement;
+  /** The splitter's own box when the drag began, relative to the layout element. */
+  origin: { left: number; top: number; width: number; height: number };
   beforeSize: number;
   afterSize: number;
   beforeMin: number;
   afterMin: number;
   weight: number;
-  original: [string, string];
   sizes: [number, number];
 }
 
@@ -45,13 +45,31 @@ interface SplitterProps {
 }
 
 /**
- * Drag handle between two items. While dragging it writes flex weights straight to the two
- * elements, so nothing re-renders; the new sizes are committed to the layout on release.
+ * Drag handle between two items. Dragging moves only a marker that shows where the edge
+ * will be; the items are resized once, on release. Nothing is laid out or rendered while
+ * the pointer moves, so the drag stays smooth however heavy the panels are.
  */
 export function Splitter({ parent, index }: SplitterProps): ReactNode {
-  const { layout } = useLayoutContext();
+  const { layout, view } = useLayoutContext();
   const drag = useRef<DragState | null>(null);
+  const ghost = useRef<HTMLDivElement | null>(null);
+  const [dragging, setDragging] = useState(false);
   const horizontal = parent.type === 'row';
+
+  const placeGhost = (offset: number): void => {
+    const state = drag.current;
+    const element = ghost.current;
+    if (!state || !element) return;
+    element.style.left = `${state.origin.left + (horizontal ? offset : 0)}px`;
+    element.style.top = `${state.origin.top + (horizontal ? 0 : offset)}px`;
+    element.style.width = `${state.origin.width}px`;
+    element.style.height = `${state.origin.height}px`;
+  };
+
+  // The marker is mounted by the state change below; put it over the splitter at once.
+  useLayoutEffect(() => {
+    if (dragging) placeGhost(0);
+  });
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>): void => {
     if (event.button !== 0 || event.pointerType === 'touch') return;
@@ -60,27 +78,33 @@ export function Splitter({ parent, index }: SplitterProps): ReactNode {
     const after = element.nextElementSibling as HTMLElement | null;
     const first = parent.children[index];
     const second = parent.children[index + 1];
-    if (!before || !after || !first || !second) return;
+    const root = view.root;
+    if (!before || !after || !first || !second || !root) return;
     event.preventDefault();
     element.setPointerCapture(event.pointerId);
-    element.classList.add('gl-dragging');
     const size = (target: HTMLElement): number => {
       const rect = target.getBoundingClientRect();
       return horizontal ? rect.width : rect.height;
     };
+    const rect = element.getBoundingClientRect();
+    const bounds = root.getBoundingClientRect();
     drag.current = {
       pointerId: event.pointerId,
       start: horizontal ? event.clientX : event.clientY,
-      before,
-      after,
+      origin: {
+        left: rect.left - bounds.left - root.clientLeft,
+        top: rect.top - bounds.top - root.clientTop,
+        width: rect.width,
+        height: rect.height,
+      },
       beforeSize: size(before),
       afterSize: size(after),
       beforeMin: minimumSize(before, horizontal),
       afterMin: minimumSize(after, horizontal),
       weight: first.size + second.size,
-      original: [before.style.flexGrow, after.style.flexGrow],
       sizes: [first.size, second.size],
     };
+    setDragging(true);
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>): void => {
@@ -94,22 +118,18 @@ export function Splitter({ parent, index }: SplitterProps): ReactNode {
     const beforeSize = Math.max(low, Math.min(state.beforeSize + delta, high));
     const first = (state.weight * beforeSize) / total;
     state.sizes = [first, state.weight - first];
-    state.before.style.flexGrow = String(state.sizes[0]);
-    state.after.style.flexGrow = String(state.sizes[1]);
+    placeGhost(beforeSize - state.beforeSize);
   };
 
   const finish = (event: ReactPointerEvent<HTMLDivElement>, commit: boolean): void => {
     const state = drag.current;
     if (!state || event.pointerId !== state.pointerId) return;
     drag.current = null;
-    event.currentTarget.classList.remove('gl-dragging');
+    setDragging(false);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
-    if (!commit || state.sizes.some((size) => !(size > 0))) {
-      [state.before.style.flexGrow, state.after.style.flexGrow] = state.original;
-      return;
-    }
+    if (!commit || state.sizes.some((size) => !(size > 0))) return;
     const current = layout.getById(parent.id);
     if (!current || current.type === 'panel' || current.type === 'stack') return;
     const sizes = current.children.map((child) => child.size);
@@ -120,13 +140,18 @@ export function Splitter({ parent, index }: SplitterProps): ReactNode {
 
   return (
     <div
-      className="gl-splitter"
+      className={dragging ? 'gl-splitter gl-dragging' : 'gl-splitter'}
       role="separator"
       aria-orientation={horizontal ? 'vertical' : 'horizontal'}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={(event) => finish(event, true)}
       onPointerCancel={(event) => finish(event, false)}
-    />
+    >
+      {dragging &&
+        view.overlay &&
+        // Drawn in the overlay: the panels sit above the frame and would hide it here.
+        createPortal(<div className="gl-splitter-ghost" ref={ghost} />, view.overlay)}
+    </div>
   );
 }

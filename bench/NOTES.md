@@ -20,9 +20,10 @@ whole-gesture figure therefore compares 60 live resizes with one deferred resize
   second. At 16 panels it drops 3 of 60 frames.
 - Legacy stays smooth during the drag in every cell, then blocks for up to 181 ms on release.
 
-This is a design trade-off, not a defect: live feedback against a cheaper drag. If slow machines
-with dense layouts matter, an opt-in "resize on release" setting would give the legacy behaviour.
-It is not built.
+**Changed after this run.** The splitter now behaves as legacy does: dragging moves a marker
+and the panels are resized once, on release. The splitter rows in this report describe the
+earlier live-resize build and were not measured again, so they overstate the current cost of a
+drag. The 6 cells flagged here should no longer apply; that is an expectation, not a measurement.
 
 ### Shared data update: panels are scroll containers (6 cells)
 
@@ -48,7 +49,7 @@ whose content overflows is otherwise unreachable. A panel that manages its own s
 `overflow: hidden` on `.gl-panel` and get the cheaper paint.
 
 The same run moves the splitter gesture only a little (453 ms against 677 ms at 64 panels), so
-scrolling is a small part of that gap and live resizing is the rest.
+scrolling was a small part of that gap and live resizing was the rest.
 
 ### Maximise and restore (3 cells), partly fixed after the run
 
@@ -103,7 +104,8 @@ so I am reporting it as an open observation rather than a confirmed leak.
 - **React commit counts** are not reported. Panel render counts are, which is what the targets use.
 - **Parse and evaluate time** was not measured separately.
 - **What was measured.** Both passes ran on one build: commit `1303bbe`. Later work (the UI
-  enhancements of issue #10 and the review fixes) is not in these numbers, by request.
+  enhancements of issue #10, the review fixes, and the change of the splitter to resize on
+  release) is not in these numbers.
 - **Legacy baseline.** As planned, legacy is the committed 1.5.9 bundle with its React 18 patch,
   in which automatic panel state capture is disabled.
 
