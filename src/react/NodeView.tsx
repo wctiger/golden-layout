@@ -1,25 +1,33 @@
-import { memo, useCallback } from 'react';
+import { Fragment, memo, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { getIndex } from '../model/tree';
 import type { RowOrColumnNode, StackNode } from '../model/types';
 import { useLayoutContext } from './context';
+import { Header } from './Header';
 import { useLayoutSelector } from './hooks';
+import { Splitter } from './Splitter';
 
 function StackView({ node }: { node: StackNode }): ReactNode {
-  const { view } = useLayoutContext();
+  const { view, settings } = useLayoutContext();
+  const selected = useLayoutSelector((state) => state.selectedId === node.id);
+  const maximised = useLayoutSelector((state) => state.maximisedId === node.id);
   const slotRef = useCallback(
     (element: HTMLDivElement | null) => {
       view.setSlot(node.id, element);
     },
     [view, node.id],
   );
+  let className = 'gl-stack';
+  if (selected) className += ' gl-selected';
+  if (maximised) className += ' gl-maximised';
   return (
     <div
-      className="gl-stack"
+      className={className}
       data-item-id={node.id}
       data-header={node.headerPosition ?? 'top'}
       style={{ flexGrow: node.size }}
     >
+      {settings.hasHeaders && <Header stack={node} />}
       <div className="gl-stack-content" ref={slotRef} />
     </div>
   );
@@ -28,8 +36,11 @@ function StackView({ node }: { node: StackNode }): ReactNode {
 function RowOrColumnView({ node }: { node: RowOrColumnNode }): ReactNode {
   return (
     <div className={`gl-${node.type}`} data-item-id={node.id} style={{ flexGrow: node.size }}>
-      {node.children.map((child) => (
-        <NodeView key={child.id} id={child.id} />
+      {node.children.map((child, index) => (
+        <Fragment key={child.id}>
+          {index > 0 && <Splitter parent={node} index={index - 1} />}
+          <NodeView id={child.id} />
+        </Fragment>
       ))}
     </div>
   );

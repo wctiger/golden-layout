@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useLayoutEffect,
@@ -100,6 +101,10 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
       [layout],
     );
 
+    const overlayRef = useCallback(
+      (element: HTMLDivElement | null) => view.setOverlay(element),
+      [view],
+    );
     const rootRef = useRef<HTMLDivElement | null>(null);
     useLayoutEffect(() => {
       view.setRoot(rootRef.current);
@@ -128,6 +133,7 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
         <div className={className} style={props.style} ref={rootRef}>
           <Frame />
           <PanelLayer />
+          <div className="gl-overlay" ref={overlayRef} />
           <Positioner />
         </div>
       </LayoutContext.Provider>

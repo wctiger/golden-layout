@@ -57,11 +57,11 @@ describe('tells components when they are shown', () => {
 
   it('reports the panel size and follows the container', async () => {
     const { root, container } = await mountLayout(config, { components: { recorder: Recorder } });
-    await expect.poll(() => sizes.one).toEqual({ width: 800, height: 600 });
+    await expect.poll(() => sizes.one).toEqual({ width: 800, height: 574 });
 
     (container.firstElementChild as HTMLElement).style.width = '500px';
 
-    await expect.poll(() => sizes.one).toEqual({ width: 500, height: 600 });
+    await expect.poll(() => sizes.one).toEqual({ width: 500, height: 574 });
     expect(panelElement(root, 'one').getBoundingClientRect().width).toBe(500);
   });
 });

@@ -16,6 +16,8 @@ interface Box {
  */
 export class LayoutView {
   root: HTMLElement | null = null;
+  /** Layer above the panels, for menus, the drop indicator and the drag proxy. */
+  overlay: HTMLElement | null = null;
   /** While a panel is dragged, its host follows this element instead of its stack. */
   dragOverride: { panelId: string; element: HTMLElement } | null = null;
 
@@ -33,6 +35,10 @@ export class LayoutView {
     if (this.root) this.observer?.unobserve(this.root);
     this.root = element;
     if (element) this.observer?.observe(element);
+  }
+
+  setOverlay(element: HTMLElement | null): void {
+    this.overlay = element;
   }
 
   setSlot(stackId: string, element: HTMLElement | null): void {

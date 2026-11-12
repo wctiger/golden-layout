@@ -49,6 +49,8 @@ export default defineConfig({
             'react/jsx-runtime',
             'react/jsx-dev-runtime',
             'vitest-browser-react',
+            'vite-plus/test',
+            'vite-plus/test/browser/context',
           ],
         },
         test: {

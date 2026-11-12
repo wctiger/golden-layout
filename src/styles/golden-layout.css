@@ -76,3 +76,148 @@
     sans-serif;
   white-space: pre-wrap;
 }
+
+/* ---- Phase 4 structure: headers, tabs, splitters ---- */
+
+.gl-root {
+  --gl-header-height: 26px;
+  --gl-splitter-size: 5px;
+  --gl-splitter-grab-size: 15px;
+}
+
+.gl-row,
+.gl-column {
+  min-width: 0;
+  min-height: 0;
+}
+
+.gl-stack[data-header='bottom'] {
+  flex-direction: column-reverse;
+}
+
+.gl-stack[data-header='left'] {
+  flex-direction: row;
+}
+
+.gl-stack[data-header='right'] {
+  flex-direction: row-reverse;
+}
+
+.gl-header {
+  display: flex;
+  flex: none;
+  box-sizing: border-box;
+  height: var(--gl-header-height);
+  min-width: 0;
+  min-height: 0;
+  user-select: none;
+}
+
+.gl-stack[data-header='left'] > .gl-header,
+.gl-stack[data-header='right'] > .gl-header {
+  width: var(--gl-header-height);
+  height: auto;
+  writing-mode: vertical-rl;
+}
+
+.gl-tabs {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.gl-tab {
+  display: flex;
+  flex: none;
+  align-items: center;
+  box-sizing: border-box;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.gl-controls {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+.gl-control,
+.gl-tab-close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.gl-splitter {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  touch-action: none;
+}
+
+.gl-row > .gl-splitter {
+  width: var(--gl-splitter-size);
+  cursor: col-resize;
+}
+
+.gl-column > .gl-splitter {
+  height: var(--gl-splitter-size);
+  cursor: row-resize;
+}
+
+/* A wider, invisible grab area centred on the splitter. */
+.gl-splitter::before {
+  position: absolute;
+  content: '';
+}
+
+.gl-row > .gl-splitter::before {
+  top: 0;
+  bottom: 0;
+  left: calc((var(--gl-splitter-size) - var(--gl-splitter-grab-size)) / 2);
+  width: var(--gl-splitter-grab-size);
+}
+
+.gl-column > .gl-splitter::before {
+  left: 0;
+  right: 0;
+  top: calc((var(--gl-splitter-size) - var(--gl-splitter-grab-size)) / 2);
+  height: var(--gl-splitter-grab-size);
+}
+
+.gl-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.gl-overlay > * {
+  pointer-events: auto;
+}
+
+.gl-tab-menu {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 60%;
+  overflow: auto;
+  background: Canvas;
+  color: CanvasText;
+  border: 1px solid GrayText;
+}
+
+.gl-tab-menu > li {
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
