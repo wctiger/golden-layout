@@ -20,6 +20,8 @@ export interface StackGeometry {
   /** Direction the tabs run in: `x` for a header on top or bottom, `y` for left or right. */
   headerAxis: 'x' | 'y';
   tabs: Rect[];
+  /** Visible tab strip, excluding header controls. */
+  tabStrip?: Rect;
   /** How many panels the stack holds. Not `tabs.length`: without a header there are no tabs. */
   panelCount: number;
   body: Rect;
@@ -106,11 +108,14 @@ function tabMarker(stack: StackGeometry, header: Rect, index: number): Rect {
   if (next) edge = horizontal ? next.left : next.top;
   else if (last) edge = horizontal ? last.left + last.width : last.top + last.height;
   else edge = horizontal ? header.left : header.top;
-  // Centred on the insertion edge, but kept inside the header at either end of the strip.
-  const start = horizontal ? header.left : header.top;
-  const length = horizontal ? header.width : header.height;
-  const size = Math.min(TAB_MARKER, length);
-  const from = Math.max(start, Math.min(edge - size / 2, start + length - size));
+  const strip = stack.tabStrip ?? header;
+  const start = horizontal ? strip.left : strip.top;
+  const end = start + (horizontal ? strip.width : strip.height);
+  // Append into the free space after the last tab. At occupied boundaries use a thin caret.
+  const appending = !next && edge < end;
+  const length = appending ? TAB_MARKER : 2;
+  const from = appending ? Math.max(start, edge) : Math.max(start, Math.min(edge, end - length));
+  const size = Math.min(length, end - from);
   return horizontal
     ? { left: from, top: header.top, width: size, height: header.height }
     : { left: header.left, top: from, width: header.width, height: size };
@@ -162,7 +167,10 @@ export function findDropTarget(geometry: LayoutGeometry, point: Point): DropTarg
 
     if (stack.panelCount === 0) {
       // An empty stack has nothing to dock against: fill it.
-      return { place: { kind: 'tab', stackId: stack.id, index: 0 }, highlight: stack.body };
+      return {
+        place: { kind: 'tab', stackId: stack.id, index: 0 },
+        highlight: stack.body,
+      };
     }
     if (!stack.header) {
       // Without a header, the centre of the body is where a tab is added.
