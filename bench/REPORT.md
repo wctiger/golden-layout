@@ -414,28 +414,39 @@ The fix removes about a quarter of the cost at 64 panels unthrottled, and shows 
 the throttle. The target is still missed at 64 panels unthrottled: 27.6 ms against 17.6 ms for a maximise and a restore together, about 5 ms more per
 action. The legacy and "after" figures come from the supplementary run and the "before" figures from
 the main passes, so compare across those two with care: under the throttle, legacy itself moved
-from 108 ms to 142 ms between the runs. The remaining cause is not identified.
+from 108 ms to 142 ms between the runs.
 
-### Mount and destroy: retained memory (3 cells flagged, no leak found)
+The remainder is rendering work, not script. A profile of 200 toggles at 64 panels shows about
+1 ms of JavaScript per toggle; the rest is the browser restyling and repainting the stacks and
+panels that are hidden while one is maximised, and shown again on restore. Legacy leaves them
+painted underneath the maximised stack.
+
+One experiment got closer: covering the frame with an opaque maximised stack instead of hiding
+every other stack cut the 64-panel figure from 28 ms to 23 ms (legacy 17 ms). It was not adopted,
+because the covered tabs and buttons would stay reachable with the Tab key while invisible.
+Hiding them properly was judged worth about 5 ms on a 64-panel maximise.
+
+### Mount and destroy: retained memory (3 cells flagged, no leak)
 
 After 50 mount and destroy cycles and a forced garbage collection, the rewrite retains 8% to 37%
 more than legacy in this test (roughly 170 to 190 kB against 130 to 160 kB). Neither version leaks
 a DOM node or an event listener.
 
-A longer check (16 panels, three runs each, heap after every 50 cycles) shows where that goes:
+A longer check (16 panels, heap after every 100 cycles, up to 1,000) shows this is warm-up that
+takes longer to settle, not a leak:
 
-| Heap after cycles | 3        | 53       | 103      | 153      | 203      |
-| ----------------- | -------- | -------- | -------- | -------- | -------- |
-| Legacy            | 2,720 kB | 2,895 kB | 2,905 kB | 2,921 kB | 2,918 kB |
-| Rewrite           | 2,152 kB | 2,338 kB | 2,378 kB | 2,400 kB | 2,415 kB |
+| Heap after cycles | 3        | 103      | 203      | 303      | 503      | 703      | 1,003    |
+| ----------------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
+| Legacy            | 2,720 kB | 2,896 kB | 2,905 kB | 2,919 kB | 2,922 kB | 2,927 kB | 2,931 kB |
+| Rewrite           | 2,179 kB | 2,395 kB | 2,436 kB | 2,454 kB | 2,465 kB | 2,509 kB | 2,519 kB |
 
-- Most of the growth is in the first 50 cycles in both versions, which is warm-up.
-- After that, legacy is flat within noise. The rewrite still grows, by about 40, 22 and 15 kB per
-  50 cycles: under 1 kB a cycle and falling, but not yet zero at 200 cycles.
-- The rewrite's total heap is about 20% smaller than legacy's throughout.
+- Both versions grow most in the first 100 cycles.
+- The rewrite keeps settling for about 300 cycles, takes one further step of about 45 kB near
+  cycle 600, and is flat otherwise: over the last 400 cycles it grows 10 kB, legacy 3 kB.
+- The rewrite's heap is about 15% smaller than legacy's throughout.
 
-I have not found what the rewrite retains. It is not DOM, and the amount is small and shrinking,
-so I am reporting it as an open observation rather than a confirmed leak.
+The 50-cycle scenario in the main tables catches the rewrite before it has settled, which is
+why it reads as worse there. This check is a single run per version.
 
 ## Deviations from the plan
 
