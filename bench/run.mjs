@@ -451,6 +451,41 @@ async function main() {
   const browser = await chromium.launch({ args: ['--enable-precise-memory-info'] });
   const results = [];
   const started = Date.now();
+  const file = join(here, 'results', quick ? 'quick.json' : option('out', 'full.json'));
+  mkdirSync(join(here, 'results'), { recursive: true });
+  const chromiumVersion = browser.version();
+
+  /** Written after every cell, so an interrupted run keeps what it has measured. */
+  const save = () => {
+    const output = {
+      meta: {
+        date: new Date().toISOString(),
+        durationSeconds: Math.round((Date.now() - started) / 1000),
+        samples: SAMPLES,
+        warmups: WARMUPS,
+        viewport: VIEWPORT,
+        chromium: chromiumVersion,
+        node: process.version,
+        os: `${platform()} ${release()}`,
+        cpuModel: cpus()[0]?.model ?? 'unknown',
+        cpuCount: cpus().length,
+        memoryGb: Math.round(totalmem() / 2 ** 30),
+        react: JSON.parse(readFileSync(join(root, 'node_modules/react/package.json'), 'utf8'))
+          .version,
+        quick,
+      },
+      scenarios: Object.fromEntries(
+        Object.entries(scenarios).map(([key, value]) => [
+          key,
+          { title: value.title, primary: value.primary, unit: value.unit },
+        ]),
+      ),
+      sizes,
+      results,
+    };
+    writeFileSync(file, `${JSON.stringify(output)}\n`);
+    return output;
+  };
 
   try {
     for (const cpu of CPU) {
@@ -465,6 +500,7 @@ async function main() {
             }
           }
           results.push({ scenario: name, size, cpu, samples });
+          save();
           const median = (version) =>
             percentile(
               samples[version].map((s) => s[scenarios[name].primary]),
@@ -481,35 +517,7 @@ async function main() {
     server.close();
   }
 
-  const output = {
-    meta: {
-      date: new Date().toISOString(),
-      durationSeconds: Math.round((Date.now() - started) / 1000),
-      samples: SAMPLES,
-      warmups: WARMUPS,
-      viewport: VIEWPORT,
-      chromium: browser.version(),
-      node: process.version,
-      os: `${platform()} ${release()}`,
-      cpuModel: cpus()[0]?.model ?? 'unknown',
-      cpuCount: cpus().length,
-      memoryGb: Math.round(totalmem() / 2 ** 30),
-      react: JSON.parse(readFileSync(join(root, 'node_modules/react/package.json'), 'utf8'))
-        .version,
-      quick,
-    },
-    scenarios: Object.fromEntries(
-      Object.entries(scenarios).map(([key, value]) => [
-        key,
-        { title: value.title, primary: value.primary, unit: value.unit },
-      ]),
-    ),
-    sizes,
-    results,
-  };
-  mkdirSync(join(here, 'results'), { recursive: true });
-  const file = join(here, 'results', quick ? 'quick.json' : option('out', 'full.json'));
-  writeFileSync(file, `${JSON.stringify(output)}\n`);
+  const output = save();
   console.log(`Wrote ${file} in ${output.meta.durationSeconds}s`);
 }
 
