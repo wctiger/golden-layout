@@ -17,7 +17,6 @@ export default defineConfig({
       entry: {
         next: resolve(root, 'size/next.ts'),
         legacy: resolve(root, 'size/legacy.js'),
-        'legacy-jquery': resolve(root, 'size/legacy-jquery.js'),
       },
       formats: ['es'],
     },

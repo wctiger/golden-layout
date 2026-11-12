@@ -126,6 +126,7 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
     const rootRef = useRef<HTMLDivElement | null>(null);
     useLayoutEffect(() => {
       view.setRoot(rootRef.current);
+      // Child effects ran before the root element was known, so lay the panels out now.
       view.reposition();
       return () => {
         view.setRoot(null);

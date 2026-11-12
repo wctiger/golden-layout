@@ -18,7 +18,11 @@ export function DragOverlay(): ReactNode {
   );
 
   // The dragged panel itself is shown inside the proxy: its host follows the proxy body.
+  // Outside a drag there is nothing to do, so an idle layout pays nothing here.
+  const wasActive = useRef(false);
   useLayoutEffect(() => {
+    if (!state.active && !wasActive.current) return;
+    wasActive.current = state.active;
     view.setDragOverride(
       state.active && state.previewPanelId !== null && body.current
         ? { panelId: state.previewPanelId, element: body.current }

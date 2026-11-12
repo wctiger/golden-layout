@@ -70,6 +70,9 @@ async function measure(cdp, work) {
     layout: ms('LayoutDuration'),
     style: ms('RecalcStyleDuration'),
     cpu: ms('ScriptDuration') + ms('LayoutDuration') + ms('RecalcStyleDuration'),
+    // All main-thread work. Unlike the sum above it does not count a layout twice when
+    // script forces one, so this is the figure the versions are compared on.
+    task: ms('TaskDuration'),
     layouts: after.LayoutCount - before.LayoutCount,
     styleRecalcs: after.RecalcStyleCount - before.RecalcStyleCount,
     ...extra,
@@ -114,6 +117,9 @@ async function gesture(page, cdp, from, stops, steps, { release = true } = {}) {
     : null;
   const count = stops.length * steps;
   return {
+    task: moved.task / count,
+    dropTask: dropped?.task ?? 0,
+    totalTask: moved.task + (dropped?.task ?? 0),
     cpu: moved.cpu / count,
     script: moved.script / count,
     layout: moved.layout / count,
@@ -157,14 +163,14 @@ const lastPanel = { small: 'p3', medium: 'p15', large: 'p63' };
 const scenarios = {
   mount: {
     title: 'Initial mount',
-    primary: 'cpu',
+    primary: 'task',
     unit: 'ms',
     mounted: false,
     run: (page, cdp, size) => act(page, cdp, 'await window.bench.mount(arg)', size),
   },
   splitter: {
     title: 'Splitter drag (whole gesture: 60 moves and release)',
-    primary: 'totalCpu',
+    primary: 'totalTask',
     unit: 'ms',
     async run(page, cdp) {
       const from = await page.evaluate(() => window.bench.splitterPoint());
@@ -173,7 +179,7 @@ const scenarios = {
   },
   resize: {
     title: 'Container resize (per size)',
-    primary: 'cpu',
+    primary: 'task',
     unit: 'ms',
     async run(page, cdp) {
       const before = await totalRenders(page);
@@ -186,6 +192,7 @@ const scenarios = {
       });
       const frames = await page.evaluate(() => window.benchTools.stopFrames());
       return {
+        task: result.task / 30,
         cpu: result.cpu / 30,
         script: result.script / 30,
         layout: result.layout / 30,
@@ -199,7 +206,7 @@ const scenarios = {
   },
   tabs: {
     title: 'Tab switch (per switch)',
-    primary: 'cpu',
+    primary: 'task',
     unit: 'ms',
     async run(page, cdp, size) {
       const count = { small: 2, medium: 3, large: 4 }[size];
@@ -214,6 +221,7 @@ const scenarios = {
       const switches = count * 5;
       return {
         ...result,
+        task: result.task / switches,
         cpu: result.cpu / switches,
         script: result.script / switches,
         layout: result.layout / switches,
@@ -223,13 +231,13 @@ const scenarios = {
   },
   open: {
     title: 'Open a panel',
-    primary: 'cpu',
+    primary: 'task',
     unit: 'ms',
     run: (page, cdp) => act(page, cdp, "window.bench.openPanel('s0', 'pNew')"),
   },
   close: {
     title: 'Close panels until a stack collapses',
-    primary: 'cpu',
+    primary: 'task',
     unit: 'ms',
     async run(page, cdp, size) {
       const panels = await page.evaluate(
@@ -252,7 +260,7 @@ const scenarios = {
   },
   redock: {
     title: 'Re-dock drag (whole gesture: 60 moves and drop)',
-    primary: 'totalCpu',
+    primary: 'totalTask',
     unit: 'ms',
     async run(page, cdp, size) {
       const from = await page.evaluate(() => window.bench.tabPoint('p1'));
@@ -274,7 +282,7 @@ const scenarios = {
   },
   maximise: {
     title: 'Maximise and restore',
-    primary: 'cpu',
+    primary: 'task',
     unit: 'ms',
     run: (page, cdp) =>
       act(
@@ -286,7 +294,7 @@ const scenarios = {
   },
   shared: {
     title: 'Shared data update (per update, all panels)',
-    primary: 'cpu',
+    primary: 'task',
     unit: 'ms',
     async run(page, cdp) {
       const result = await act(
@@ -296,6 +304,7 @@ const scenarios = {
       );
       return {
         ...result,
+        task: result.task / 100,
         cpu: result.cpu / 100,
         script: result.script / 100,
         layout: result.layout / 100,
@@ -304,7 +313,7 @@ const scenarios = {
   },
   local: {
     title: 'Panel-local update (per update, one panel)',
-    primary: 'cpu',
+    primary: 'task',
     unit: 'ms',
     async run(page, cdp) {
       const result = await act(
@@ -314,6 +323,7 @@ const scenarios = {
       );
       return {
         ...result,
+        task: result.task / 100,
         cpu: result.cpu / 100,
         script: result.script / 100,
         layout: result.layout / 100,
@@ -361,6 +371,7 @@ const scenarios = {
       const result = await measure(cdp, () => cycle(50));
       const after = await settle();
       return {
+        task: result.task / 50,
         cpu: result.cpu / 50,
         heapKb: (after.JSHeapUsedSize - before.JSHeapUsedSize) / 1024,
         nodes: after.Nodes - before.Nodes,
@@ -389,7 +400,8 @@ function bundleSizes() {
   const themes = join(here, '..', 'examples', 'themes');
   return {
     legacy: {
-      js: sized(join(out, 'legacy.js'), join(out, 'legacy-jquery.js')),
+      // The vendored jQuery is already minified; re-bundling it only makes it larger.
+      js: sized(join(out, 'legacy.js'), join(vendor, 'jquery.js')),
       jsWithoutJquery: sized(join(out, 'legacy.js')),
       css: sized(
         join(vendor, 'goldenlayout-base.css'),
