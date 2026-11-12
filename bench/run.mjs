@@ -4,6 +4,7 @@
 //   node bench/run.mjs                 full run
 //   node bench/run.mjs --quick         small size, 5 samples, unthrottled
 //   node bench/run.mjs --scenarios mount,splitter --sizes small,medium --samples 10 --cpu 1,4
+//   node bench/run.mjs --cpu 4 --no-build   a second pass over the pages already built
 import { execFileSync } from 'node:child_process';
 import {
   createReadStream,
@@ -439,12 +440,21 @@ async function sample(browser, origin, version, name, size, cpu) {
 
 async function main() {
   const root = join(here, '..');
-  console.log('Building benchmark pages...');
-  execFileSync('npx', ['vp', 'build', '-c', 'bench/vite.config.ts'], {
-    cwd: root,
-    stdio: 'inherit',
-  });
-  const sizes = bundleSizes();
+  // --no-build reuses the pages in bench/dist and the sizes of an earlier run, so that
+  // several passes measure exactly the same build.
+  let sizes;
+  if (flag('no-build')) {
+    const earlier = join(here, 'results', option('sizes-from', 'full-cpu1.json'));
+    sizes = JSON.parse(readFileSync(earlier, 'utf8')).sizes;
+    console.log(`Reusing bench/dist and the sizes in ${earlier}`);
+  } else {
+    console.log('Building benchmark pages...');
+    execFileSync('npx', ['vp', 'build', '-c', 'bench/vite.config.ts'], {
+      cwd: root,
+      stdio: 'inherit',
+    });
+    sizes = bundleSizes();
+  }
 
   const server = await serve(join(here, 'dist'));
   const origin = `http://127.0.0.1:${server.address().port}`;
