@@ -9,6 +9,10 @@
     "react",
     "tabs"
   ],
+  "homepage": "https://github.com/wctiger/golden-layout#readme",
+  "bugs": {
+    "url": "https://github.com/wctiger/golden-layout/issues"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",

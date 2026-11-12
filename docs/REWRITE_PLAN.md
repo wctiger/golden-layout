@@ -1,5 +1,9 @@
 # Rewrite as a React 18+ / TypeScript library on Vite+
 
+> **Status: complete.** All eight phases are done. The test counts in this plan were estimates;
+> the exact figures are in [TEST_MIGRATION.md](./TEST_MIGRATION.md). One decision was added
+> during the work: a stack holds panels only, so rows and columns cannot be nested inside a tab.
+
 ## Goal
 
 Rewrite this fork as a React-first layout manager:
@@ -104,14 +108,14 @@ type PanelNode = {
 
 One commit per phase, each with its tests, so every commit is green.
 
-- [ ] **1. Tooling reset.** Delete the legacy source, `dist/`, `lib/`, and the Grunt, Gulp, Karma, Bower, jspm, typings, TSLint and Travis files. Set up Vite+ with strict TypeScript, the ESM and `.d.ts` library build, lint and format, React `>=18` as a peer dependency, and a GitHub Actions workflow for lint, typecheck, test and build.
-- [ ] **2. Headless model.** Pure TypeScript, no React: the new schema; a reducer with typed actions for add, remove, replace, move, activate, resize, maximise, select, set title and set panel state; queries by id, type, component and filter; validation; and the tree clean-up rules (empty stacks removed, single-child rows collapsed).
-- [ ] **3. Store and React bindings.** A store exposed through a stable context and `useSyncExternalStore` selectors; `<GoldenLayout>` with a component registry and `onChange(layout, action)`; the hooks `usePanelState`, `usePanelSize` and `usePanelVisible`.
-- [ ] **4. Renderer.** The frame tree (rows, columns, stacks, headers, tabs, splitters) laid out with flexbox, and the flat keyed panel layer positioned over the slots with per-panel error boundaries. Also header position and `hasHeaders`, close and maximise controls, labels, the tab overflow dropdown, selection, and container resizing via `ResizeObserver`.
-- [ ] **5. Drag and drop.** Tab reorder, re-docking with drop-zone geometry and indicator, the drag proxy, `constrainDragToContainer`, and external drag sources.
-- [ ] **6. Styling.** One base stylesheet driven by CSS variables, including the dimensions. The four themes move to `examples/themes/` as variable overrides and are not part of the package.
-- [ ] **7. Test migration audit.** A mapping table from each old test file and case to its new equivalent, confirming nothing surviving was missed.
-- [ ] **8. Demo and docs.** A Vite demo app with a theme switcher replaces `index.html`, `start.js` and `react-18/`. The README is rewritten with the new API and schema.
+- [x] **1. Tooling reset.** Delete the legacy source, `dist/`, `lib/`, and the Grunt, Gulp, Karma, Bower, jspm, typings, TSLint and Travis files. Set up Vite+ with strict TypeScript, the ESM and `.d.ts` library build, lint and format, React `>=18` as a peer dependency, and a GitHub Actions workflow for lint, typecheck, test and build.
+- [x] **2. Headless model.** Pure TypeScript, no React: the new schema; a reducer with typed actions for add, remove, replace, move, activate, resize, maximise, select, set title and set panel state; queries by id, type, component and filter; validation; and the tree clean-up rules (empty stacks removed, single-child rows collapsed).
+- [x] **3. Store and React bindings.** A store exposed through a stable context and `useSyncExternalStore` selectors; `<GoldenLayout>` with a component registry and `onChange(layout, action)`; the hooks `usePanelState`, `usePanelSize` and `usePanelVisible`.
+- [x] **4. Renderer.** The frame tree (rows, columns, stacks, headers, tabs, splitters) laid out with flexbox, and the flat keyed panel layer positioned over the slots with per-panel error boundaries. Also header position and `hasHeaders`, close and maximise controls, labels, the tab overflow dropdown, selection, and container resizing via `ResizeObserver`.
+- [x] **5. Drag and drop.** Tab reorder, re-docking with drop-zone geometry and indicator, the drag proxy, `constrainDragToContainer`, and external drag sources.
+- [x] **6. Styling.** One base stylesheet driven by CSS variables, including the dimensions. The four themes move to `examples/themes/` as variable overrides and are not part of the package.
+- [x] **7. Test migration audit.** A mapping table from each old test file and case to its new equivalent, confirming nothing surviving was missed.
+- [x] **8. Demo and docs.** A Vite demo app with a theme switcher replaces `index.html`, `start.js` and `react-18/`. The README is rewritten with the new API and schema.
 
 ## Test migration
 
