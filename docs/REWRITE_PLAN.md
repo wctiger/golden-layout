@@ -13,21 +13,21 @@ This is a clean break. The JavaScript API and the serialized layout format are b
 
 ## Decisions
 
-| Area | Decision |
-|---|---|
-| Public API | React-first: a `<GoldenLayout>` component plus hooks, over a headless TypeScript model |
-| Rendering | One React tree for the whole layout, not one root per panel |
-| Panel mounting | All panels render in one flat, keyed layer at the layout root and are positioned over their slots, so re-docking never remounts a panel. Inactive tabs stay mounted but hidden |
-| Layout state | One top-level serializable state is the single source of truth |
-| Panel state | Each panel node has an optional `state` field, read and written through `usePanelState()` |
-| Change notification | `onChange(nextLayout, action)` with typed actions; no event emitter |
-| Schema | New and lean; no compatibility with 1.x configs |
-| Node identity | One required unique `id` per node (no multi-ID) |
-| Drag and drop | Hand-rolled on Pointer Events, mouse only |
-| Runtime dependencies | React (peer, `>=18`) only |
-| Styling | One base stylesheet driven entirely by CSS variables; themes are external examples |
-| Packaging | ESM and generated `.d.ts` only; package name unchanged |
-| CI | GitHub Actions |
+| Area                 | Decision                                                                                                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Public API           | React-first: a `<GoldenLayout>` component plus hooks, over a headless TypeScript model                                                                                         |
+| Rendering            | One React tree for the whole layout, not one root per panel                                                                                                                    |
+| Panel mounting       | All panels render in one flat, keyed layer at the layout root and are positioned over their slots, so re-docking never remounts a panel. Inactive tabs stay mounted but hidden |
+| Layout state         | One top-level serializable state is the single source of truth                                                                                                                 |
+| Panel state          | Each panel node has an optional `state` field, read and written through `usePanelState()`                                                                                      |
+| Change notification  | `onChange(nextLayout, action)` with typed actions; no event emitter                                                                                                            |
+| Schema               | New and lean; no compatibility with 1.x configs                                                                                                                                |
+| Node identity        | One required unique `id` per node (no multi-ID)                                                                                                                                |
+| Drag and drop        | Hand-rolled on Pointer Events, mouse only                                                                                                                                      |
+| Runtime dependencies | React (peer, `>=18`) only                                                                                                                                                      |
+| Styling              | One base stylesheet driven entirely by CSS variables; themes are external examples                                                                                             |
+| Packaging            | ESM and generated `.d.ts` only; package name unchanged                                                                                                                         |
+| CI                   | GitHub Actions                                                                                                                                                                 |
 
 ## New schema (direction)
 

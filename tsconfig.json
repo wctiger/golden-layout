@@ -1,11 +1,21 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node"
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": false,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": []
   },
-  "exclude": [
-    "node_modules",
-    "typings/browser",
-    "typings/browser.d.ts"
-  ]
+  "include": ["src", "tests", "examples", "bench", "vite.config.ts"],
+  "exclude": ["bench/legacy/vendor", "dist", "node_modules"]
 }

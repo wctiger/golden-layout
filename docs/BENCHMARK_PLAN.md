@@ -34,35 +34,35 @@ Two things are deliberately not equal, and the report calls them out:
 
 Each scenario runs at three layout sizes: small (4 panels), medium (16 panels in 6 stacks) and large (64 panels in 16 stacks).
 
-| # | Scenario | What it does |
-|---|---|---|
-| 1 | Initial mount | From empty container to all visible panels painted |
-| 2 | Splitter drag | Drag one splitter 300 px over 60 steps |
-| 3 | Container resize | Resize the container through 30 sizes |
-| 4 | Tab switch | Activate every tab in a stack in turn |
-| 5 | Open panel | Add a panel to an existing stack |
-| 6 | Close panel | Close a panel, including one that collapses its stack |
-| 7 | Re-dock drag | Drag a tab over several stacks and drop it on a stack edge |
-| 8 | Maximise toggle | Maximise and restore a stack |
-| 9 | Shared data update | Push one external data change that every panel displays, 100 times |
-| 10 | Panel-local update | Update state inside one panel, 100 times |
-| 11 | Serialize | Produce the saved layout object 1,000 times |
-| 12 | Mount / destroy churn | Mount and destroy the layout 50 times, then force GC |
+| #   | Scenario              | What it does                                                       |
+| --- | --------------------- | ------------------------------------------------------------------ |
+| 1   | Initial mount         | From empty container to all visible panels painted                 |
+| 2   | Splitter drag         | Drag one splitter 300 px over 60 steps                             |
+| 3   | Container resize      | Resize the container through 30 sizes                              |
+| 4   | Tab switch            | Activate every tab in a stack in turn                              |
+| 5   | Open panel            | Add a panel to an existing stack                                   |
+| 6   | Close panel           | Close a panel, including one that collapses its stack              |
+| 7   | Re-dock drag          | Drag a tab over several stacks and drop it on a stack edge         |
+| 8   | Maximise toggle       | Maximise and restore a stack                                       |
+| 9   | Shared data update    | Push one external data change that every panel displays, 100 times |
+| 10  | Panel-local update    | Update state inside one panel, 100 times                           |
+| 11  | Serialize             | Produce the saved layout object 1,000 times                        |
+| 12  | Mount / destroy churn | Mount and destroy the layout 50 times, then force GC               |
 
 Scenario 9 is where one tree versus many roots should differ most. Scenario 10 checks that the single tree does not leak renders into other panels.
 
 ## Metrics
 
-| Metric | Source | Applies to |
-|---|---|---|
-| Wall time to completion | `performance.now()` around the action plus two animation frames | 1, 4, 5, 6, 8, 11 |
-| Frame time p50 / p95 / max, dropped frames | `requestAnimationFrame` deltas during the gesture | 2, 3, 7 |
-| Long tasks (over 50 ms) | `PerformanceObserver` | all interactive |
-| Script, layout and style-recalc duration; layout and recalc counts | CDP `Performance.getMetrics` deltas | all |
-| React commits and panel render counts | React `<Profiler>` in the shared panel component | 9, 10 (and 2, to confirm zero panel renders in the rewrite) |
-| JS heap after forced GC, DOM node count, listener count | CDP `HeapProfiler.collectGarbage` and `Performance.getMetrics` | 1, 12 |
-| Bundle size: minified, gzip, brotli | Build output; legacy counted with jQuery | static |
-| Parse and evaluate time | CDP trace of script evaluation | static |
+| Metric                                                             | Source                                                          | Applies to                                                  |
+| ------------------------------------------------------------------ | --------------------------------------------------------------- | ----------------------------------------------------------- |
+| Wall time to completion                                            | `performance.now()` around the action plus two animation frames | 1, 4, 5, 6, 8, 11                                           |
+| Frame time p50 / p95 / max, dropped frames                         | `requestAnimationFrame` deltas during the gesture               | 2, 3, 7                                                     |
+| Long tasks (over 50 ms)                                            | `PerformanceObserver`                                           | all interactive                                             |
+| Script, layout and style-recalc duration; layout and recalc counts | CDP `Performance.getMetrics` deltas                             | all                                                         |
+| React commits and panel render counts                              | React `<Profiler>` in the shared panel component                | 9, 10 (and 2, to confirm zero panel renders in the rewrite) |
+| JS heap after forced GC, DOM node count, listener count            | CDP `HeapProfiler.collectGarbage` and `Performance.getMetrics`  | 1, 12                                                       |
+| Bundle size: minified, gzip, brotli                                | Build output; legacy counted with jQuery                        | static                                                      |
+| Parse and evaluate time                                            | CDP trace of script evaluation                                  | static                                                      |
 
 ## Harness
 
