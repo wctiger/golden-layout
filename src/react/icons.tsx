@@ -18,7 +18,7 @@ export function CloseIcon(): ReactNode {
   );
 }
 
-export function MaximiseIcon(): ReactNode {
+export function MaximizeIcon(): ReactNode {
   return (
     <svg {...common}>
       <rect x="1.5" y="1.5" width="7" height="7" />
@@ -26,7 +26,7 @@ export function MaximiseIcon(): ReactNode {
   );
 }
 
-export function MinimiseIcon(): ReactNode {
+export function MinimizeIcon(): ReactNode {
   return (
     <svg {...common}>
       <path d="M1.5 8.5h7" />

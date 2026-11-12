@@ -73,13 +73,13 @@ export function usePanelState<S>(
   return [value, setValue];
 }
 
-/** True while the panel is the active tab of its stack and not hidden behind a maximised stack. */
+/** True while the panel is the active tab of its stack and not hidden behind a maximized stack. */
 export function usePanelVisible(): boolean {
   const id = usePanelId();
   return useLayoutSelector((state) => {
     const stack = getIndex(state.root).get(id)?.parent;
     if (stack?.type !== 'stack' || stack.activeId !== id) return false;
-    return state.maximisedId === null || state.maximisedId === stack.id;
+    return state.maximizedId === null || state.maximizedId === stack.id;
   });
 }
 
@@ -124,7 +124,7 @@ export interface PanelApi {
   close(): void;
   /** Makes the panel the active tab of its stack. */
   activate(): void;
-  toggleMaximise(): void;
+  toggleMaximize(): void;
 }
 
 /** Actions for the panel this component is rendered in. The returned object is stable. */
@@ -137,7 +137,7 @@ export function usePanel(): PanelApi {
       setTitle: (title: string) => layout.setTitle(id, title),
       close: () => layout.closeItem(id),
       activate: () => layout.setActive(id),
-      toggleMaximise: () => layout.toggleMaximise(id),
+      toggleMaximize: () => layout.toggleMaximize(id),
     }),
     [layout, id],
   );

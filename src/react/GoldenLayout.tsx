@@ -15,11 +15,20 @@ import { resolveLabels, resolveSettings } from '../settings';
 import type { Labels, Settings } from '../settings';
 import { createLayout } from '../store';
 import type { Layout } from '../store';
-import { LayoutContext, useLayoutContext } from './context';
-import type { ComponentRegistry, LayoutContextValue } from './context';
+import { ChromeContext, LayoutContext, useLayoutContext } from './context';
+import type {
+  ChromeContextValue,
+  ComponentRegistry,
+  LayoutContextValue,
+  StackActionsContext,
+  TabMenuContext,
+  TabMenuItem,
+} from './context';
 import { useLayoutSelector } from './hooks';
 import { NodeView } from './NodeView';
 import { PanelLayer } from './PanelLayer';
+import { TabContextMenu } from './TabContextMenu';
+import { UiStore } from './ui';
 import { DragController } from './drag/DragController';
 import { DragOverlay } from './drag/DragOverlay';
 import { registerDragController } from './drag/useDragSource';
@@ -36,6 +45,16 @@ export interface GoldenLayoutProps {
   onChange?: (state: LayoutState, action: Action) => void;
   /** Called when a panel throws while rendering. The panel shows the error message. */
   onPanelError?: (error: unknown, panelId: string) => void;
+  /**
+   * Renders your own controls in each stack header, to the left of the built-in buttons.
+   * Called as a function, once per stack: do not use hooks directly inside it.
+   */
+  renderStackActions?: (context: StackActionsContext) => ReactNode;
+  /**
+   * Customises the menu opened by right-clicking a tab. Receives the built-in entries and
+   * returns the entries to show; an empty array leaves the browser's own menu in place.
+   */
+  tabContextMenu?: (context: TabMenuContext, defaults: TabMenuItem[]) => TabMenuItem[];
   settings?: Partial<Settings>;
   labels?: Partial<Labels>;
   className?: string;
@@ -72,11 +91,11 @@ function Positioner(): ReactNode {
 
 function Frame(): ReactNode {
   const rootId = useLayoutSelector((state) => state.root?.id ?? null);
-  const maximised = useLayoutSelector((state) => state.maximisedId !== null);
-  // The whole frame stays mounted while a stack is maximised: CSS lifts that stack over the
-  // rest, so maximising and restoring is a class change rather than a remount.
+  const maximized = useLayoutSelector((state) => state.maximizedId !== null);
+  // The whole frame stays mounted while a stack is maximized: CSS lifts that stack over the
+  // rest, so maximizing and restoring is a class change rather than a remount.
   return (
-    <div className={maximised ? 'gl-frame gl-has-maximised' : 'gl-frame'}>
+    <div className={maximized ? 'gl-frame gl-has-maximized' : 'gl-frame'}>
       {rootId === null ? <div className="gl-empty" /> : <NodeView id={rootId} />}
     </div>
   );
@@ -94,6 +113,7 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
 
     const view = useMemo(() => new LayoutView(layout.getState), [layout]);
     const drag = useMemo(() => new DragController(layout, view), [layout, view]);
+    const ui = useMemo(() => new UiStore(), []);
     const components = useShallowStable(props.components);
     const settings = useShallowStable(resolveSettings(props.settings));
     const labels = useShallowStable(resolveLabels(props.labels));
@@ -123,6 +143,24 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
       };
     }, [layout, drag]);
 
+    // layout.startRename() reaches the mounted view through here.
+    useEffect(
+      () =>
+        layout.onRenameRequest((id) => {
+          const node = layout.getById(id);
+          if (node?.type === 'panel' && settings.renameEnabled && node.renamable !== false) {
+            ui.startRename(id);
+          }
+        }),
+      [layout, ui, settings],
+    );
+
+    const { renderStackActions, tabContextMenu } = props;
+    const chrome = useMemo<ChromeContextValue>(
+      () => ({ renderStackActions, tabContextMenu }),
+      [renderStackActions, tabContextMenu],
+    );
+
     const rootRef = useRef<HTMLDivElement | null>(null);
     useLayoutEffect(() => {
       view.setRoot(rootRef.current);
@@ -139,25 +177,29 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
         layout,
         view,
         drag,
+        ui,
         components,
         settings,
         labels,
         onPanelError: (error, panelId) => callbacks.current.onPanelError?.(error, panelId),
       }),
-      [layout, view, drag, components, settings, labels],
+      [layout, view, drag, ui, components, settings, labels],
     );
 
     const className = props.className ? `gl-root ${props.className}` : 'gl-root';
     return (
       <LayoutContext.Provider value={context}>
-        <div className={className} style={props.style} ref={rootRef}>
-          <Frame />
-          <PanelLayer />
-          <div className="gl-overlay" ref={overlayRef}>
-            <DragOverlay />
+        <ChromeContext.Provider value={chrome}>
+          <div className={className} style={props.style} ref={rootRef}>
+            <Frame />
+            <PanelLayer />
+            <div className="gl-overlay" ref={overlayRef}>
+              <TabContextMenu />
+              <DragOverlay />
+            </div>
+            <Positioner />
           </div>
-          <Positioner />
-        </div>
+        </ChromeContext.Provider>
       </LayoutContext.Provider>
     );
   },

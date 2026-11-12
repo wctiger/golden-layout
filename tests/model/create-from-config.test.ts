@@ -112,13 +112,13 @@ describe('normalization', () => {
     ['a panel without a component', { root: { type: 'panel' } }],
     ['a bad activeId', { root: { type: 'stack', activeId: 'nope', children: [] } }],
     ['a non-positive size', { root: { type: 'stack', size: 0 } }],
-    ['a maximisedId that is not a stack', { root: { type: 'row', id: 'r' }, maximisedId: 'r' }],
+    ['a maximizedId that is not a stack', { root: { type: 'row', id: 'r' }, maximizedId: 'r' }],
     ['an unknown selectedId', { root: { type: 'row' }, selectedId: 'ghost' }],
   ])('rejects %s', (_name, config) => {
     expect(() => normalizeLayout(config as never)).toThrow(LayoutError);
   });
 
   it('accepts an empty layout', () => {
-    expect(normalizeLayout()).toEqual({ root: null, maximisedId: null, selectedId: null });
+    expect(normalizeLayout()).toEqual({ root: null, maximizedId: null, selectedId: null });
   });
 });

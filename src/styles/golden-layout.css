@@ -71,6 +71,18 @@
   --gl-menu-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   --gl-menu-hover-background: #e8e8e8;
 
+  /* Panel scrollbars (Chromium) */
+  --gl-scrollbar-size: 10px;
+  --gl-scrollbar-radius: 5px;
+  --gl-scrollbar-track: transparent;
+  --gl-scrollbar-thumb: #b9b9b9;
+  --gl-scrollbar-thumb-hover: #8f8f8f;
+
+  /* Title field shown while a tab is renamed */
+  --gl-title-input-background: #ffffff;
+  --gl-title-input-text: #1f1f1f;
+  --gl-title-input-border: 1px solid #3b82d6;
+
   /* Keyboard focus */
   --gl-focus-ring: 2px solid #3b82d6;
 }
@@ -144,15 +156,15 @@
   flex-direction: row-reverse;
 }
 
-/* A maximised stack covers the frame; everything else stays mounted but out of sight. */
-.gl-stack.gl-maximised {
+/* A maximized stack covers the frame; everything else stays mounted but out of sight. */
+.gl-stack.gl-maximized {
   position: absolute;
   inset: 0;
   z-index: 2;
 }
 
-.gl-frame.gl-has-maximised .gl-stack:not(.gl-maximised),
-.gl-frame.gl-has-maximised .gl-splitter {
+.gl-frame.gl-has-maximized .gl-stack:not(.gl-maximized),
+.gl-frame.gl-has-maximized .gl-splitter {
   visibility: hidden;
 }
 
@@ -175,6 +187,34 @@
   overflow: auto;
   color: var(--gl-content-text);
   pointer-events: auto;
+}
+
+/* The panel's own scrollbar, and the menus'. Content inside a panel keeps its own. */
+.gl-panel::-webkit-scrollbar,
+.gl-tab-menu::-webkit-scrollbar,
+.gl-context-menu::-webkit-scrollbar {
+  width: var(--gl-scrollbar-size);
+  height: var(--gl-scrollbar-size);
+}
+
+.gl-panel::-webkit-scrollbar-track,
+.gl-panel::-webkit-scrollbar-corner,
+.gl-tab-menu::-webkit-scrollbar-track,
+.gl-context-menu::-webkit-scrollbar-track {
+  background: var(--gl-scrollbar-track);
+}
+
+.gl-panel::-webkit-scrollbar-thumb,
+.gl-tab-menu::-webkit-scrollbar-thumb,
+.gl-context-menu::-webkit-scrollbar-thumb {
+  background: var(--gl-scrollbar-thumb);
+  border-radius: var(--gl-scrollbar-radius);
+}
+
+.gl-panel::-webkit-scrollbar-thumb:hover,
+.gl-tab-menu::-webkit-scrollbar-thumb:hover,
+.gl-context-menu::-webkit-scrollbar-thumb:hover {
+  background: var(--gl-scrollbar-thumb-hover);
 }
 
 .gl-panel-error {
@@ -262,6 +302,35 @@
   text-overflow: ellipsis;
 }
 
+.gl-title-input {
+  box-sizing: content-box;
+  max-inline-size: var(--gl-tab-max-width);
+  min-inline-size: 2ch;
+  margin: 0;
+  padding: 0 3px;
+  border: var(--gl-title-input-border);
+  border-radius: 2px;
+  outline: none;
+  background: var(--gl-title-input-background);
+  color: var(--gl-title-input-text);
+  font: inherit;
+  writing-mode: horizontal-tb;
+}
+
+.gl-tab.gl-editing {
+  cursor: default;
+}
+
+/* The consumer's controls for a stack, left of the built-in buttons. */
+.gl-stack-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  padding-inline-start: 4px;
+  color: var(--gl-control-color);
+}
+
 .gl-controls {
   display: flex;
   flex: none;
@@ -305,7 +374,8 @@
 
 /* ---- Tab overflow menu ---- */
 
-.gl-tab-menu {
+.gl-tab-menu,
+.gl-context-menu {
   position: absolute;
   z-index: 2;
   max-height: 60%;
@@ -320,18 +390,36 @@
   pointer-events: auto;
 }
 
-.gl-tab-menu > li {
+.gl-context-menu {
+  min-width: 160px;
+  outline: none;
+}
+
+.gl-tab-menu > li,
+.gl-context-menu > li {
   padding: 4px 12px;
   cursor: pointer;
   white-space: nowrap;
 }
 
-.gl-tab-menu > li:hover {
+.gl-tab-menu > li:hover,
+.gl-context-menu > li.gl-active {
   background: var(--gl-menu-hover-background);
 }
 
 .gl-tab-menu > li.gl-active {
   font-weight: 600;
+}
+
+.gl-context-menu > li.gl-separator {
+  margin-top: 4px;
+  border-top: var(--gl-menu-border);
+  padding-top: 8px;
+}
+
+.gl-context-menu > li[aria-disabled='true'] {
+  cursor: default;
+  opacity: 0.45;
 }
 
 /* ---- Splitters ---- */

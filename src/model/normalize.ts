@@ -84,6 +84,7 @@ function buildPanel(config: PanelConfig, ids: IdAllocator): PanelNode {
   };
   if (config.closable !== undefined) panel.closable = config.closable;
   if (config.reorderable !== undefined) panel.reorderable = config.reorderable;
+  if (config.renamable !== undefined) panel.renamable = config.renamable;
   if (config.props !== undefined) panel.props = config.props;
   if (config.state !== undefined) panel.state = config.state;
   return panel;
@@ -161,7 +162,7 @@ export function normalizePanel(config: PanelConfig, ids: IdAllocator): PanelNode
 
 export const EMPTY_LAYOUT: LayoutState = Object.freeze({
   root: null,
-  maximisedId: null,
+  maximizedId: null,
   selectedId: null,
 });
 
@@ -179,13 +180,13 @@ export function normalizeLayout(config: LayoutConfig = {}): LayoutState {
   const known = new Map<string, LayoutNode>();
   walk(root, (node) => known.set(node.id, node));
 
-  const maximisedId = config.maximisedId ?? null;
-  if (maximisedId !== null && known.get(maximisedId)?.type !== 'stack') {
-    throw new LayoutError(`maximisedId "${maximisedId}" is not a stack in the layout`);
+  const maximizedId = config.maximizedId ?? null;
+  if (maximizedId !== null && known.get(maximizedId)?.type !== 'stack') {
+    throw new LayoutError(`maximizedId "${maximizedId}" is not a stack in the layout`);
   }
   const selectedId = config.selectedId ?? null;
   if (selectedId !== null && !known.has(selectedId)) {
     throw new LayoutError(`selectedId "${selectedId}" is not an item in the layout`);
   }
-  return { root, maximisedId, selectedId };
+  return { root, maximizedId, selectedId };
 }

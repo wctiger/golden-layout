@@ -16,7 +16,7 @@ describe('it creates and extends settings correctly', () => {
   });
 
   it('does the same for labels', () => {
-    expect(resolveLabels({ close: 'shut' })).toMatchObject({ close: 'shut', maximise: 'maximise' });
+    expect(resolveLabels({ close: 'shut' })).toMatchObject({ close: 'shut', maximize: 'maximize' });
     expect(resolveLabels().close).toBe('close');
   });
 });

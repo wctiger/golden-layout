@@ -10,7 +10,14 @@ import {
   usePanelState,
   usePanelVisible,
 } from '../../src/index';
-import type { Layout, LayoutConfig, Side } from '../../src/index';
+import type {
+  Layout,
+  LayoutConfig,
+  Side,
+  StackActionsContext,
+  TabMenuContext,
+  TabMenuItem,
+} from '../../src/index';
 
 const STORAGE_KEY = 'golden-layout-demo';
 
@@ -58,6 +65,8 @@ function Welcome(): ReactNode {
         resize.
       </p>
       <p>Drag a chip from the toolbar to add a panel. Press Escape to cancel a drag.</p>
+      <p>Double-click a tab title to rename it. Right-click a tab for its menu.</p>
+      <p>The + in each header is a custom stack action.</p>
     </div>
   );
 }
@@ -132,6 +141,42 @@ function Saved(): ReactNode {
 const components = { welcome: Welcome, counter: Counter, notes: Notes, info: Info, saved: Saved };
 
 let created = 1;
+
+/** A "+" in every stack header that adds a counter next to the active tab. */
+function renderStackActions({ layout, stack }: StackActionsContext): ReactNode {
+  return (
+    <button
+      type="button"
+      className="gl-control"
+      title="add a counter to this stack"
+      onClick={() =>
+        layout.addPanel(
+          { component: 'counter', title: `Counter ${++created}` },
+          { parent: stack.id },
+        )
+      }
+    >
+      +
+    </button>
+  );
+}
+
+/** The default tab menu plus one entry of our own. */
+function tabContextMenu(_context: TabMenuContext, defaults: TabMenuItem[]): TabMenuItem[] {
+  return [
+    ...defaults,
+    {
+      id: 'duplicate',
+      label: 'Duplicate',
+      separatorBefore: true,
+      onSelect: ({ layout, panel, stack, index }) =>
+        layout.addPanel(
+          { component: panel.component, title: `${panel.title} copy`, state: panel.state },
+          { parent: stack.id, index: index + 1 },
+        ),
+    },
+  ];
+}
 
 export function App(): ReactNode {
   const layout = useMemo(() => createLayout(loadLayout()), []);
@@ -217,6 +262,8 @@ export function App(): ReactNode {
           components={components}
           className={theme ? `gl-theme-${theme}` : undefined}
           settings={{ selectionEnabled: selection, hasHeaders: headers }}
+          renderStackActions={renderStackActions}
+          tabContextMenu={tabContextMenu}
           onChange={(state) => setSelectedId(state.selectedId)}
         />
       </div>

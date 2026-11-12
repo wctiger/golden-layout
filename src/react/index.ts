@@ -1,6 +1,12 @@
 export { GoldenLayout } from './GoldenLayout';
 export type { GoldenLayoutProps } from './GoldenLayout';
-export type { ComponentRegistry } from './context';
+export type {
+  ComponentRegistry,
+  StackActionsContext,
+  TabMenuContext,
+  TabMenuItem,
+} from './context';
+export { defaultTabMenuItems } from './TabContextMenu';
 export {
   useGoldenLayout,
   useLayoutSelector,

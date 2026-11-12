@@ -60,10 +60,10 @@ function clamp(value: number, min: number, max: number): number {
 
 /** Measures the frame as it stands. The tree is not changed during a drag, so once is enough. */
 export function readGeometry(root: HTMLElement): LayoutGeometry {
-  // While a stack is maximised it is the whole layout as far as dropping is concerned.
-  const maximised = root.querySelector<HTMLElement>('.gl-stack.gl-maximised');
-  const elements = maximised
-    ? [maximised]
+  // While a stack is maximized it is the whole layout as far as dropping is concerned.
+  const maximized = root.querySelector<HTMLElement>('.gl-stack.gl-maximized');
+  const elements = maximized
+    ? [maximized]
     : Array.from(root.querySelectorAll<HTMLElement>('.gl-stack'));
   const stacks = elements.map((element) => {
     const header = element.querySelector<HTMLElement>(':scope > .gl-header');
@@ -82,7 +82,7 @@ export function readGeometry(root: HTMLElement): LayoutGeometry {
     };
   });
   const rootItem =
-    maximised ?? root.querySelector<HTMLElement>(':scope > .gl-frame > [data-item-id]');
+    maximized ?? root.querySelector<HTMLElement>(':scope > .gl-frame > [data-item-id]');
   return {
     bounds: toRect(root.getBoundingClientRect()),
     root: rootItem
@@ -272,7 +272,7 @@ export class DragController {
 
     if (source.kind === 'new') {
       if (place.kind === 'side') {
-        return state.maximisedId === null ? { target: place.targetId, side: place.side } : null;
+        return state.maximizedId === null ? { target: place.targetId, side: place.side } : null;
       }
       return { parent: place.stackId, index: place.index };
     }
@@ -282,8 +282,8 @@ export class DragController {
     const ownStackId = entry.node.type === 'panel' ? entry.parent.id : entry.node.id;
 
     if (place.kind === 'side') {
-      // A maximised stack hides the rest of the layout, so there is nothing to dock against.
-      if (state.maximisedId !== null) return null;
+      // A maximized stack hides the rest of the layout, so there is nothing to dock against.
+      if (state.maximizedId !== null) return null;
       if (isWithin(state.root, place.targetId, source.id)) return null;
       const alone = entry.node.type !== 'panel' || entry.parent.children.length === 1;
       if (place.targetId === ownStackId && alone) return null;

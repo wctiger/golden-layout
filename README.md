@@ -1,7 +1,7 @@
 # golden-layout
 
 A docking layout manager for React 18+: rows, columns and tabbed stacks of panels that users
-resize, reorder, re-dock by drag and drop, and maximise.
+resize, reorder, re-dock by drag and drop, and maximize.
 
 This is a ground-up rewrite of the jQuery-era golden-layout 1.x. It is written in TypeScript,
 renders entirely with React, and has no runtime dependency other than React. It is **not
@@ -78,7 +78,7 @@ A layout is a tree of four node types.
 ```ts
 interface LayoutState {
   root: RowOrColumnNode | StackNode | null;
-  maximisedId: string | null; // the maximised stack, if any
+  maximizedId: string | null; // the maximized stack, if any
   selectedId: string | null; // the selected item, if any
 }
 
@@ -107,6 +107,7 @@ interface PanelNode {
   title: string;
   closable?: boolean; // false hides the close button
   reorderable?: boolean; // false prevents dragging the tab
+  renamable?: boolean; // false prevents editing the title in the tab
   props?: Record<string, unknown>; // static props for the component
   state?: unknown; // see usePanelState
 }
@@ -125,18 +126,20 @@ Invalid configs throw a `LayoutError` with a message naming the problem.
 
 ## `<GoldenLayout>` props
 
-| Prop            | Type                            | Purpose                                                     |
-| --------------- | ------------------------------- | ----------------------------------------------------------- |
-| `components`    | `Record<string, ComponentType>` | Required. The components panels can render, by name         |
-| `initialLayout` | `LayoutConfig`                  | The starting layout. Read once                              |
-| `layout`        | `Layout`                        | A handle from `createLayout`, instead of `initialLayout`    |
-| `onChange`      | `(state, action) => void`       | Called after every change, with the action that caused it   |
-| `onPanelError`  | `(error, panelId) => void`      | Called when a panel throws; the panel shows the message     |
-| `settings`      | `Partial<Settings>`             | Behaviour switches, below                                   |
-| `labels`        | `Partial<Labels>`               | Tooltips for `close`, `maximise`, `minimise`, `tabDropdown` |
-| `className`     | `string`                        | Added to the root element; where a theme class goes         |
-| `style`         | `CSSProperties`                 | Inline style for the root; can set CSS variables            |
-| `ref`           | `Ref<Layout>`                   | Receives the layout handle                                  |
+| Prop                 | Type                                   | Purpose                                                                     |
+| -------------------- | -------------------------------------- | --------------------------------------------------------------------------- |
+| `components`         | `Record<string, ComponentType>`        | Required. The components panels can render, by name                         |
+| `initialLayout`      | `LayoutConfig`                         | The starting layout. Read once                                              |
+| `layout`             | `Layout`                               | A handle from `createLayout`, instead of `initialLayout`                    |
+| `onChange`           | `(state, action) => void`              | Called after every change, with the action that caused it                   |
+| `onPanelError`       | `(error, panelId) => void`             | Called when a panel throws; the panel shows the message                     |
+| `renderStackActions` | `(context) => ReactNode`               | Your own controls in each stack header, see [Stack actions](#stack-actions) |
+| `tabContextMenu`     | `(context, defaults) => TabMenuItem[]` | Customises the tab menu, see [Tab menu](#tab-menu)                          |
+| `settings`           | `Partial<Settings>`                    | Behaviour switches, below                                                   |
+| `labels`             | `Partial<Labels>`                      | Tooltips and menu text, see [Labels](#labels)                               |
+| `className`          | `string`                               | Added to the root element; where a theme class goes                         |
+| `style`              | `CSSProperties`                        | Inline style for the root; can set CSS variables                            |
+| `ref`                | `Ref<Layout>`                          | Receives the layout handle                                                  |
 
 ### Settings
 
@@ -144,8 +147,9 @@ Invalid configs throw a `LayoutError` with a message naming the problem.
 | -------------------------- | ------- | --------------------------------------------------- |
 | `hasHeaders`               | `true`  | Show a tab header on every stack                    |
 | `reorderEnabled`           | `true`  | Allow tabs and stacks to be dragged                 |
+| `renameEnabled`            | `true`  | Allow tab titles to be edited                       |
 | `selectionEnabled`         | `false` | Select a stack by clicking its header background    |
-| `showMaximiseIcon`         | `true`  | Show the maximise button                            |
+| `showMaximizeIcon`         | `true`  | Show the maximize button                            |
 | `showCloseIcon`            | `true`  | Show the close-stack button                         |
 | `constrainDragToContainer` | `true`  | Keep the drag proxy inside the layout               |
 | `dragThreshold`            | `10`    | Pixels the pointer travels before a press is a drag |
@@ -173,11 +177,13 @@ layout.addPanel({ component: 'chart' }, { parent: 'stack-1', index: 0 }); // as 
 layout.addPanel({ component: 'chart' }, { target: 'stack-1', side: 'right' }); // docked
 layout.closeItem('orders'); // honours closable: false
 layout.removeItem('orders'); // unconditional
+layout.closeItems(['orders', 'trades']); // several at once, as one change
 layout.moveItem('orders', { target: 'stack-2', side: 'bottom' });
 layout.setActive('orders');
-layout.toggleMaximise('orders');
+layout.toggleMaximize('orders');
 layout.select('stack-1');
 layout.setTitle('orders', 'Orders (3)');
+layout.startRename('orders'); // puts the tab title into edit mode
 layout.resize('row-1', [2, 1]);
 layout.updateItem('stack-1', { headerPosition: 'left' });
 layout.setLayout(savedLayout);
@@ -200,22 +206,23 @@ and no DOM references.
 Every method above dispatches one action, and `onChange` and `subscribe` receive it. You can
 also call `layout.dispatch(action)` directly.
 
-| Action          | Fields         | Effect                                                                     |
-| --------------- | -------------- | -------------------------------------------------------------------------- |
-| `addItem`       | `item`, `to?`  | Add an item into a parent or docked against a target                       |
-| `removeItem`    | `id`           | Remove an item                                                             |
-| `closeItem`     | `id`           | Remove an item unless it is not closable                                   |
-| `replaceItem`   | `id`, `item`   | Swap an item for a new one in place                                        |
-| `moveItem`      | `id`, `to`     | Move a panel or stack                                                      |
-| `setActive`     | `id`           | Make a panel the active tab                                                |
-| `resize`        | `id`, `sizes`  | Set the sizes of a row's or column's children                              |
-| `maximise`      | `id`           | Maximise the stack (or the stack of the panel)                             |
-| `restore`       |                | Leave maximised mode                                                       |
-| `select`        | `id` or `null` | Select an item, or clear the selection                                     |
-| `setTitle`      | `id`, `title`  | Rename a panel                                                             |
-| `setPanelState` | `id`, `state`  | Replace a panel's saved state                                              |
-| `updateItem`    | `id`, `patch`  | Change `closable`, `reorderable`, `props`, `component` or `headerPosition` |
-| `setLayout`     | `layout`       | Replace the whole layout                                                   |
+| Action          | Fields         | Effect                                                                                  |
+| --------------- | -------------- | --------------------------------------------------------------------------------------- |
+| `addItem`       | `item`, `to?`  | Add an item into a parent or docked against a target                                    |
+| `removeItem`    | `id`           | Remove an item                                                                          |
+| `closeItem`     | `id`           | Remove an item unless it is not closable                                                |
+| `closeItems`    | `ids`          | Close several items as one change, skipping non-closable ones                           |
+| `replaceItem`   | `id`, `item`   | Swap an item for a new one in place                                                     |
+| `moveItem`      | `id`, `to`     | Move a panel or stack                                                                   |
+| `setActive`     | `id`           | Make a panel the active tab                                                             |
+| `resize`        | `id`, `sizes`  | Set the sizes of a row's or column's children                                           |
+| `maximize`      | `id`           | Maximize the stack (or the stack of the panel)                                          |
+| `restore`       |                | Leave maximized mode                                                                    |
+| `select`        | `id` or `null` | Select an item, or clear the selection                                                  |
+| `setTitle`      | `id`, `title`  | Rename a panel                                                                          |
+| `setPanelState` | `id`, `state`  | Replace a panel's saved state                                                           |
+| `updateItem`    | `id`, `patch`  | Change `closable`, `reorderable`, `renamable`, `props`, `component` or `headerPosition` |
+| `setLayout`     | `layout`       | Replace the whole layout                                                                |
 
 A destination (`to`) is either `{ parent, index? }` or `{ target, side }`.
 
@@ -240,9 +247,9 @@ Use these inside a component rendered as a panel.
 | Hook                     | Returns                                                                   |
 | ------------------------ | ------------------------------------------------------------------------- |
 | `usePanelState(initial)` | `[state, setState]`, like `useState`, stored in the panel's `state`       |
-| `usePanelVisible()`      | `true` while the panel is the active tab and not behind a maximised stack |
+| `usePanelVisible()`      | `true` while the panel is the active tab and not behind a maximized stack |
 | `usePanelSize()`         | `{ width, height }` in pixels, updated on resize                          |
-| `usePanel()`             | `{ id, setTitle, close, activate, toggleMaximise }`                       |
+| `usePanel()`             | `{ id, setTitle, close, activate, toggleMaximize }`                       |
 | `usePanelId()`           | The panel's id                                                            |
 | `useGoldenLayout()`      | The layout handle                                                         |
 | `useLayoutSelector(fn)`  | A slice of layout state; re-renders only when the slice changes           |
@@ -261,6 +268,113 @@ function Orders() {
 ```
 
 The value must be serializable. A default that is never changed is not written to the layout.
+
+## Labels
+
+`labels` sets the text of tooltips, accessible names and tab menu entries. Tooltips are the
+browser's own (`title` attributes).
+
+| Label              | Default                   | Used for                                                  |
+| ------------------ | ------------------------- | --------------------------------------------------------- |
+| `close`            | `close`                   | A tab's close button: "close Orders"                      |
+| `maximize`         | `maximize`                | The maximize button, named after the stack's active panel |
+| `minimize`         | `minimize`                | The same button while the stack is maximized              |
+| `closeStack`       | `close all tabs`          | The header button that closes the whole stack             |
+| `tabDropdown`      | `additional tabs`         | The chevron shown when tabs overflow                      |
+| `rename`           | `Rename panel`            | Tab menu                                                  |
+| `closeTabsToRight` | `Close tabs to the right` | Tab menu                                                  |
+| `closeOtherTabs`   | `Close other tabs`        | Tab menu                                                  |
+| `closeAllTabs`     | `Close all tabs`          | Tab menu                                                  |
+
+`close`, `maximize` and `minimize` name the panel they act on. Given a string, the panel title
+is appended. Given a function, it builds the whole text:
+
+```tsx
+const labels = {
+  close: ({ title }: { title: string }) => `Close ${title}`,
+  maximize: 'Expand', // becomes "Expand Orders"
+};
+
+<GoldenLayout labels={labels} ... />
+```
+
+Define label functions outside the component, or memoize them. A new function on every render
+is a new label, and re-renders the layout's headers and panels.
+
+## Renaming tabs
+
+Double-click a tab title, or press **F2** on a focused tab, to edit it in place. **Enter** or
+clicking away commits; **Escape** cancels. An empty title is not accepted. A commit is one
+`setTitle` action.
+
+- `settings={{ renameEnabled: false }}` turns renaming off for the layout.
+- `renamable: false` on a panel turns it off for that panel.
+- `layout.startRename(panelId)` starts an edit from your own code.
+
+## Tab menu
+
+Right-clicking a tab, or pressing **Shift+F10** on a focused tab, opens a menu with four
+entries. Each acts on the tab's own stack, and the bulk closes skip panels marked
+`closable: false`.
+
+| Entry                   | Effect                          |
+| ----------------------- | ------------------------------- |
+| Rename panel            | Starts editing the title        |
+| Close tabs to the right | Closes every tab after this one |
+| Close other tabs        | Closes every tab but this one   |
+| Close all tabs          | Closes every tab in the stack   |
+
+An entry that would do nothing is disabled. A bulk close is one `closeItems` action.
+
+`tabContextMenu` receives the context and the default entries, and returns the entries to show:
+
+```tsx
+<GoldenLayout
+  tabContextMenu={(context, defaults) => [
+    ...defaults,
+    {
+      id: 'duplicate',
+      label: 'Duplicate',
+      separatorBefore: true,
+      onSelect: ({ layout, panel, stack }) =>
+        layout.addPanel({ component: panel.component, title: panel.title }, { parent: stack.id }),
+    },
+  ]}
+  ...
+/>
+```
+
+- The context is `{ layout, panel, stack, index }`.
+- An entry is `{ id, label, disabled?, separatorBefore?, onSelect(context) }`.
+- Return the defaults filtered, reordered or relabelled as you like.
+- Returning an empty array shows no menu and leaves the browser's own menu in place.
+
+## Stack actions
+
+`renderStackActions` puts your own controls in each stack header, to the left of the built-in
+buttons. It is called once per stack with that stack and its active panel:
+
+```tsx
+<GoldenLayout
+  renderStackActions={({ layout, stack, activePanel, maximized }) => (
+    <button
+      className="gl-control"
+      title="Add a chart"
+      onClick={() => layout.addPanel({ component: 'chart' }, { parent: stack.id })}
+    >
+      +
+    </button>
+  )}
+  ...
+/>
+```
+
+- The `gl-control` class gives a button the size and hover style of the built-in ones.
+- The area takes its natural width; the tabs get what is left.
+- Returning `null` renders nothing.
+- It is called as a plain function, so use hooks inside a component you return, not directly
+  in the callback.
+- It runs again when its stack changes, not when another stack does.
 
 ## Dragging new panels in
 
@@ -352,9 +466,22 @@ All class names use the `gl-` prefix.
 | `--gl-menu-border`                | `1px solid #b5b5b5`              | Tab overflow menu                         |
 | `--gl-menu-shadow`                | `0 2px 8px rgba(0, 0, 0, 0.2)`   | Tab overflow menu                         |
 | `--gl-menu-hover-background`      | `#e8e8e8`                        | Hovered menu entry                        |
+| `--gl-scrollbar-size`             | `10px`                           | Panel scrollbar thickness                 |
+| `--gl-scrollbar-radius`           | `5px`                            | Panel scrollbar thumb corners             |
+| `--gl-scrollbar-track`            | `transparent`                    | Panel scrollbar track                     |
+| `--gl-scrollbar-thumb`            | `#b9b9b9`                        | Panel scrollbar thumb                     |
+| `--gl-scrollbar-thumb-hover`      | `#8f8f8f`                        | Hovered scrollbar thumb                   |
+| `--gl-title-input-background`     | `#ffffff`                        | Field shown while a tab is renamed        |
+| `--gl-title-input-text`           | `#1f1f1f`                        | Field shown while a tab is renamed        |
+| `--gl-title-input-border`         | `1px solid #3b82d6`              | Field shown while a tab is renamed        |
 | `--gl-focus-ring`                 | `2px solid #3b82d6`              | Keyboard focus outline                    |
 
 Sizes are read from the rendered DOM, so the dimension variables can be changed at any time.
+
+## Browser support
+
+Chromium-based browsers are the supported target, and the tests run in Chromium. The styled
+panel scrollbars use `::-webkit-scrollbar` and appear only there; nothing else depends on it.
 
 ## Differences from 1.x
 

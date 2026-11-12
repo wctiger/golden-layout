@@ -226,9 +226,9 @@ function settle(state: LayoutState, root: Root): LayoutState {
   const index = getIndex(root);
   return {
     root,
-    maximisedId:
-      state.maximisedId !== null && index.get(state.maximisedId)?.node.type === 'stack'
-        ? state.maximisedId
+    maximizedId:
+      state.maximizedId !== null && index.get(state.maximizedId)?.node.type === 'stack'
+        ? state.maximizedId
         : null,
     selectedId: state.selectedId !== null && index.has(state.selectedId) ? state.selectedId : null,
   };
@@ -263,6 +263,24 @@ export function reduce(state: LayoutState, action: Action): LayoutState {
         return state;
       }
       return settle(state, remove(root!, action.id));
+    }
+
+    case 'closeItems': {
+      // One change for a bulk close: every id is checked first, then the closable ones go.
+      for (const id of action.ids) requireEntry(root, id);
+      let next: Root = root;
+      for (const id of action.ids) {
+        const entry = getIndex(next).get(id);
+        // An earlier removal may already have taken this item with its container.
+        if (!entry || !next) continue;
+        const { node } = entry;
+        if (node.closable === false) continue;
+        if (node.type === 'stack' && node.children.some((panel) => panel.closable === false)) {
+          continue;
+        }
+        next = remove(next, id);
+      }
+      return settle(state, next);
     }
 
     case 'replaceItem': {
@@ -324,13 +342,13 @@ export function reduce(state: LayoutState, action: Action): LayoutState {
       return settle(state, replaceNode(root!, node.id, { ...node, children }));
     }
 
-    case 'maximise': {
+    case 'maximize': {
       const stack = stackOf(root, action.id);
-      return state.maximisedId === stack.id ? state : { ...state, maximisedId: stack.id };
+      return state.maximizedId === stack.id ? state : { ...state, maximizedId: stack.id };
     }
 
     case 'restore':
-      return state.maximisedId === null ? state : { ...state, maximisedId: null };
+      return state.maximizedId === null ? state : { ...state, maximizedId: null };
 
     case 'select': {
       if (action.id !== null) requireEntry(root, action.id);

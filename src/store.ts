@@ -41,6 +41,8 @@ export interface Layout {
   removeItem(id: string): void;
   /** Removes an item unless it is marked `closable: false`. */
   closeItem(id: string): void;
+  /** Closes several items as one change, skipping any marked `closable: false`. */
+  closeItems(ids: string[]): void;
   /** Swaps an item for a new one in the same place and returns the new id. */
   replaceItem(id: string, item: NodeConfig): string;
   moveItem(id: string, to: Destination): void;
@@ -48,14 +50,21 @@ export interface Layout {
   setActive(id: string): void;
   /** Sets the relative sizes of a row's or column's children. */
   resize(id: string, sizes: number[]): void;
-  maximise(id: string): void;
+  maximize(id: string): void;
   restore(): void;
-  toggleMaximise(id: string): void;
+  toggleMaximize(id: string): void;
   select(id: string | null): void;
   setTitle(id: string, title: string): void;
   setPanelState<S>(id: string, state: S | ((previous: S) => S)): void;
   updateItem(id: string, patch: ItemPatch): void;
   setLayout(layout: LayoutConfig): void;
+  /**
+   * Asks the mounted layout to put a panel's tab title into edit mode. Does nothing when
+   * the layout is not mounted or renaming is disabled for the layout or the panel.
+   */
+  startRename(id: string): void;
+  /** Used by `<GoldenLayout>` to receive `startRename` requests. */
+  onRenameRequest: (listener: (id: string) => void) => () => void;
 
   getById(id: string): LayoutNode | undefined;
   getParent(id: string): ContainerNode | null;
@@ -68,6 +77,7 @@ export interface Layout {
 export function createLayout(config?: LayoutConfig): Layout {
   let state = normalizeLayout(config);
   const listeners = new Set<LayoutListener>();
+  const renameListeners = new Set<(id: string) => void>();
 
   const dispatch = (action: Action): void => {
     const previous = state;
@@ -104,6 +114,7 @@ export function createLayout(config?: LayoutConfig): Layout {
     addPanel: (panel, to) => layout.addItem({ ...panel, type: 'panel' }, to),
     removeItem: (id) => dispatch({ type: 'removeItem', id }),
     closeItem: (id) => dispatch({ type: 'closeItem', id }),
+    closeItems: (ids) => dispatch({ type: 'closeItems', ids }),
     replaceItem(id, item) {
       const identified = withId(item);
       dispatch({ type: 'replaceItem', id, item: identified });
@@ -112,14 +123,14 @@ export function createLayout(config?: LayoutConfig): Layout {
     moveItem: (id, to) => dispatch({ type: 'moveItem', id, to }),
     setActive: (id) => dispatch({ type: 'setActive', id }),
     resize: (id, sizes) => dispatch({ type: 'resize', id, sizes }),
-    maximise: (id) => dispatch({ type: 'maximise', id }),
+    maximize: (id) => dispatch({ type: 'maximize', id }),
     restore: () => dispatch({ type: 'restore' }),
-    toggleMaximise(id) {
+    toggleMaximize(id) {
       const node = findById(state, id);
       const stackId = node?.type === 'panel' ? parentOf(state, id)?.id : id;
-      if (state.maximisedId !== null && state.maximisedId === stackId)
+      if (state.maximizedId !== null && state.maximizedId === stackId)
         dispatch({ type: 'restore' });
-      else dispatch({ type: 'maximise', id });
+      else dispatch({ type: 'maximize', id });
     },
     select: (id) => dispatch({ type: 'select', id }),
     setTitle: (id, title) => dispatch({ type: 'setTitle', id, title }),
@@ -133,6 +144,15 @@ export function createLayout(config?: LayoutConfig): Layout {
     },
     updateItem: (id, patch) => dispatch({ type: 'updateItem', id, patch }),
     setLayout: (next) => dispatch({ type: 'setLayout', layout: next }),
+    startRename(id) {
+      for (const listener of [...renameListeners]) listener(id);
+    },
+    onRenameRequest(listener) {
+      renameListeners.add(listener);
+      return () => {
+        renameListeners.delete(listener);
+      };
+    },
 
     getById: (id) => findById(state, id),
     getParent: (id) => parentOf(state, id),

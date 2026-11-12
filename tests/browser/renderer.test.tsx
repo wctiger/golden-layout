@@ -206,31 +206,31 @@ describe('panels keep their identity', () => {
   });
 });
 
-describe('maximise', () => {
+describe('maximize', () => {
   it('lets a stack fill the layout and restores it', async () => {
     const { root, layout } = await mount();
-    await userEvent.click(item(root, 'top').querySelector('.gl-control.gl-maximise')!);
+    await userEvent.click(item(root, 'top').querySelector('.gl-control.gl-maximize')!);
 
-    expect(layout.getState().maximisedId).toBe('top');
+    expect(layout.getState().maximizedId).toBe('top');
     await expect.poll(() => width(panelElement(root, 'c'))).toBe(800);
-    expect(item(root, 'top').classList.contains('gl-maximised')).toBe(true);
+    expect(item(root, 'top').classList.contains('gl-maximized')).toBe(true);
     expect(isShown(panelElement(root, 'a'))).toBe(false);
     expect(isShown(panelElement(root, 'd'))).toBe(false);
-    const button = item(root, 'top').querySelector('.gl-control.gl-maximise')!;
-    expect(button.getAttribute('title')).toBe('minimise');
+    const button = item(root, 'top').querySelector('.gl-control.gl-maximize')!;
+    expect(button.getAttribute('title')).toBe('minimize probe');
     expect(height(item(root, 'top'))).toBe(600);
     expect(getComputedStyle(item(root, 'left')).visibility).toBe('hidden');
 
     await userEvent.click(button);
 
-    expect(layout.getState().maximisedId).toBeNull();
+    expect(layout.getState().maximizedId).toBeNull();
     await expect.poll(() => isShown(panelElement(root, 'a'))).toBe(true);
     expect(width(panelElement(root, 'c'))).toBeCloseTo(397.5, 1);
   });
 
-  it('hides the maximise button when showMaximiseIcon is off', async () => {
-    const { root } = await mount(twoByOne, { settings: { showMaximiseIcon: false } });
-    expect(root.querySelector('.gl-control.gl-maximise')).toBeNull();
+  it('hides the maximize button when showMaximizeIcon is off', async () => {
+    const { root } = await mount(twoByOne, { settings: { showMaximizeIcon: false } });
+    expect(root.querySelector('.gl-control.gl-maximize')).toBeNull();
   });
 });
 

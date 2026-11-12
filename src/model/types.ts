@@ -12,6 +12,8 @@ export interface PanelNode {
   closable?: boolean;
   /** `false` prevents the tab from being dragged. */
   reorderable?: boolean;
+  /** `false` prevents the title from being edited in the tab. */
+  renamable?: boolean;
   /** Static, serializable props handed to the component. */
   props?: Record<string, unknown>;
   /** Serializable state owned by the panel, see `usePanelState`. */
@@ -54,8 +56,8 @@ export type NodeOfType<T extends NodeType> = T extends 'panel'
 /** The complete, serializable state of a layout. */
 export interface LayoutState {
   root: ContainerNode | null;
-  /** Id of the maximised stack, if any. */
-  maximisedId: string | null;
+  /** Id of the maximized stack, if any. */
+  maximizedId: string | null;
   /** Id of the selected item, if any. */
   selectedId: string | null;
 }
@@ -69,6 +71,7 @@ export interface PanelConfig {
   title?: string;
   closable?: boolean;
   reorderable?: boolean;
+  renamable?: boolean;
   props?: Record<string, unknown>;
   state?: unknown;
   /** Used when the panel is placed straight into a row or column. */
@@ -97,7 +100,7 @@ export type NodeConfig = RowOrColumnConfig | StackConfig | PanelConfig;
 
 export interface LayoutConfig {
   root?: NodeConfig | null;
-  maximisedId?: string | null;
+  maximizedId?: string | null;
   selectedId?: string | null;
 }
 
@@ -105,7 +108,7 @@ export interface LayoutConfig {
 export type Destination = { parent: string; index?: number } | { target: string; side: Side };
 
 export type ItemPatch = Partial<
-  Pick<PanelNode, 'closable' | 'reorderable' | 'props' | 'component'> &
+  Pick<PanelNode, 'closable' | 'reorderable' | 'renamable' | 'props' | 'component'> &
     Pick<StackNode, 'headerPosition'>
 >;
 
@@ -113,11 +116,12 @@ export type Action =
   | { type: 'addItem'; item: NodeConfig; to?: Destination }
   | { type: 'removeItem'; id: string }
   | { type: 'closeItem'; id: string }
+  | { type: 'closeItems'; ids: string[] }
   | { type: 'replaceItem'; id: string; item: NodeConfig }
   | { type: 'moveItem'; id: string; to: Destination }
   | { type: 'setActive'; id: string }
   | { type: 'resize'; id: string; sizes: number[] }
-  | { type: 'maximise'; id: string }
+  | { type: 'maximize'; id: string }
   | { type: 'restore' }
   | { type: 'select'; id: string | null }
   | { type: 'setTitle'; id: string; title: string }

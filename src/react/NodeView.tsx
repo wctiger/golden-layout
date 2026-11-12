@@ -10,7 +10,7 @@ import { Splitter } from './Splitter';
 function StackView({ node }: { node: StackNode }): ReactNode {
   const { view, settings } = useLayoutContext();
   const selected = useLayoutSelector((state) => state.selectedId === node.id);
-  const maximised = useLayoutSelector((state) => state.maximisedId === node.id);
+  const maximized = useLayoutSelector((state) => state.maximizedId === node.id);
   const slotRef = useCallback(
     (element: HTMLDivElement | null) => {
       view.setSlot(node.id, element);
@@ -19,7 +19,7 @@ function StackView({ node }: { node: StackNode }): ReactNode {
   );
   let className = 'gl-stack';
   if (selected) className += ' gl-selected';
-  if (maximised) className += ' gl-maximised';
+  if (maximized) className += ' gl-maximized';
   return (
     <div
       className={className}

@@ -25,5 +25,10 @@
   --gl-menu-text: #eeeeee;
   --gl-menu-border: 1px solid #555555;
   --gl-menu-hover-background: #3a3b34;
+  --gl-scrollbar-thumb: #55564d;
+  --gl-scrollbar-thumb-hover: #75766c;
+  --gl-title-input-background: #1b1c18;
+  --gl-title-input-text: #eeeeee;
+  --gl-title-input-border: 1px solid #a6e22e;
   --gl-focus-ring: 2px solid #a6e22e;
 }

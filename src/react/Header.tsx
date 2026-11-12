@@ -1,4 +1,13 @@
-import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import type {
   KeyboardEvent,
   MouseEvent,
@@ -7,9 +16,56 @@ import type {
 } from 'react';
 import { createPortal } from 'react-dom';
 import type { PanelNode, StackNode } from '../model/types';
-import { useLayoutContext } from './context';
+import { formatLabel } from '../settings';
+import { ChromeContext, useLayoutContext } from './context';
 import { useLayoutSelector } from './hooks';
-import { CloseIcon, DropdownIcon, MaximiseIcon, MinimiseIcon } from './icons';
+import { CloseIcon, DropdownIcon, MaximizeIcon, MinimizeIcon } from './icons';
+import { tabMenuContext, tabMenuItems } from './TabContextMenu';
+
+interface TitleEditorProps {
+  panel: PanelNode;
+  onDone: (refocus: boolean) => void;
+}
+
+/** The text field a tab title turns into while it is being renamed. */
+function TitleEditor({ panel, onDone }: TitleEditorProps): ReactNode {
+  const { layout } = useLayoutContext();
+  const [value, setValue] = useState(panel.title);
+  const finished = useRef(false);
+
+  const finish = (commit: boolean, refocus: boolean): void => {
+    // Enter is followed by a blur as the field goes away: only the first one counts.
+    if (finished.current) return;
+    finished.current = true;
+    const title = value.trim();
+    if (commit && title !== '' && title !== panel.title) layout.setTitle(panel.id, title);
+    onDone(refocus);
+  };
+
+  return (
+    <input
+      className="gl-title-input"
+      type="text"
+      aria-label={panel.title}
+      value={value}
+      size={Math.max(value.length, 1)}
+      autoFocus
+      onFocus={(event) => event.currentTarget.select()}
+      onChange={(event) => setValue(event.target.value)}
+      onBlur={() => finish(true, false)}
+      onKeyDown={(event) => {
+        // Keys typed here belong to the field, not to the tab around it.
+        event.stopPropagation();
+        if (event.key === 'Enter') finish(true, true);
+        else if (event.key === 'Escape') finish(false, true);
+      }}
+      // A press inside the field must not activate, drag or select anything.
+      onPointerDown={(event) => event.stopPropagation()}
+      onDoubleClick={(event) => event.stopPropagation()}
+      onContextMenu={(event) => event.stopPropagation()}
+    />
+  );
+}
 
 interface TabProps {
   panel: PanelNode;
@@ -17,46 +73,98 @@ interface TabProps {
 }
 
 const Tab = memo(function Tab({ panel, active }: TabProps): ReactNode {
-  const { layout, labels, settings, drag } = useLayoutContext();
+  const { layout, labels, settings, drag, ui } = useLayoutContext();
+  const chrome = useContext(ChromeContext);
+  const editing = useSyncExternalStore(
+    ui.subscribe,
+    () => ui.getRenaming() === panel.id,
+    () => false,
+  );
+  const element = useRef<HTMLDivElement | null>(null);
   const closable = panel.closable !== false;
   const reorderable = settings.reorderEnabled && panel.reorderable !== false;
+  const renamable = settings.renameEnabled && panel.renamable !== false;
+  const closeLabel = formatLabel(labels.close, panel.title);
+
+  /** Opens the tab menu, unless the consumer has emptied it. Returns whether it opened. */
+  const openMenu = (x: number, y: number): boolean => {
+    const context = tabMenuContext(layout, layout.getState(), panel.id);
+    if (!context || tabMenuItems(context, labels, settings, chrome).length === 0) return false;
+    ui.openMenu({ panelId: panel.id, x, y });
+    return true;
+  };
 
   const onKeyDown = (event: KeyboardEvent): void => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       layout.setActive(panel.id);
+    } else if (event.key === 'F2' && renamable) {
+      event.preventDefault();
+      ui.startRename(panel.id);
+    } else if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      if (openMenu(rect.left, rect.bottom)) event.preventDefault();
     }
   };
   const onAuxClick = (event: MouseEvent): void => {
     // Middle click closes, as in browsers.
     if (event.button === 1 && closable) layout.closeItem(panel.id);
   };
+  const onContextMenu = (event: MouseEvent): void => {
+    // A menu opened from the keyboard reports no pointer position: use the tab's corner.
+    const rect = event.currentTarget.getBoundingClientRect();
+    const fromKeyboard = event.clientX === 0 && event.clientY === 0;
+    const opened = fromKeyboard
+      ? openMenu(rect.left, rect.bottom)
+      : openMenu(event.clientX, event.clientY);
+    if (opened) event.preventDefault();
+  };
+
+  let className = 'gl-tab';
+  if (active) className += ' gl-active';
+  if (editing) className += ' gl-editing';
 
   return (
     <div
-      className={active ? 'gl-tab gl-active' : 'gl-tab'}
+      className={className}
       role="tab"
       aria-selected={active}
       tabIndex={0}
-      title={panel.title}
+      title={editing ? undefined : panel.title}
+      ref={element}
       data-panel-id={panel.id}
       data-reorderable={reorderable}
       onPointerDown={(event) => {
         if (event.button !== 0) return;
         layout.setActive(panel.id);
-        if (reorderable) drag.begin(event.nativeEvent, { kind: 'item', id: panel.id });
+        if (reorderable && !editing) drag.begin(event.nativeEvent, { kind: 'item', id: panel.id });
+      }}
+      onDoubleClick={() => {
+        if (renamable) ui.startRename(panel.id);
       }}
       onKeyDown={onKeyDown}
       onAuxClick={onAuxClick}
+      onContextMenu={onContextMenu}
     >
-      <span className="gl-title">{panel.title}</span>
+      {editing ? (
+        <TitleEditor
+          panel={panel}
+          onDone={(refocus) => {
+            ui.stopRename();
+            if (refocus) element.current?.focus();
+          }}
+        />
+      ) : (
+        <span className="gl-title">{panel.title}</span>
+      )}
       {closable && (
         <button
           type="button"
           className="gl-tab-close"
-          title={labels.close}
-          aria-label={`${labels.close} ${panel.title}`}
+          title={closeLabel}
+          aria-label={closeLabel}
           onPointerDown={(event) => event.stopPropagation()}
+          onDoubleClick={(event) => event.stopPropagation()}
           onClick={(event) => {
             event.stopPropagation();
             layout.closeItem(panel.id);
@@ -68,6 +176,17 @@ const Tab = memo(function Tab({ panel, active }: TabProps): ReactNode {
     </div>
   );
 });
+
+/** The consumer's own controls for a stack, to the left of the built-in buttons. */
+function StackActions({ stack, maximized }: { stack: StackNode; maximized: boolean }): ReactNode {
+  const { layout } = useLayoutContext();
+  const { renderStackActions } = useContext(ChromeContext);
+  if (!renderStackActions) return null;
+  const activePanel = stack.children.find((panel) => panel.id === stack.activeId) ?? null;
+  const content = renderStackActions({ layout, stack, activePanel, maximized });
+  if (content === null || content === undefined || content === false) return null;
+  return <div className="gl-stack-actions">{content}</div>;
+}
 
 interface TabMenuProps {
   stack: StackNode;
@@ -148,7 +267,7 @@ function revealTab(strip: HTMLElement, tab: HTMLElement): void {
 
 export function Header({ stack }: { stack: StackNode }): ReactNode {
   const { layout, settings, labels, drag } = useLayoutContext();
-  const maximised = useLayoutSelector((state) => state.maximisedId === stack.id);
+  const maximized = useLayoutSelector((state) => state.maximizedId === stack.id);
   const stripRef = useRef<HTMLDivElement | null>(null);
   const [overflowing, setOverflowing] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
@@ -188,6 +307,9 @@ export function Header({ stack }: { stack: StackNode }): ReactNode {
     drag.begin(event.nativeEvent, { kind: 'item', id: stack.id });
   };
 
+  const activeTitle = stack.children.find((panel) => panel.id === stack.activeId)?.title;
+  const maximizeLabel = formatLabel(maximized ? labels.minimize : labels.maximize, activeTitle);
+
   const stackClosable =
     stack.closable !== false && stack.children.every((panel) => panel.closable !== false);
 
@@ -203,6 +325,7 @@ export function Header({ stack }: { stack: StackNode }): ReactNode {
           <Tab key={panel.id} panel={panel} active={panel.id === stack.activeId} />
         ))}
       </div>
+      <StackActions stack={stack} maximized={maximized} />
       <div className="gl-controls">
         {overflowing && (
           <button
@@ -220,23 +343,23 @@ export function Header({ stack }: { stack: StackNode }): ReactNode {
             <DropdownIcon />
           </button>
         )}
-        {settings.showMaximiseIcon && (
+        {settings.showMaximizeIcon && (
           <button
             type="button"
-            className="gl-control gl-maximise"
-            title={maximised ? labels.minimise : labels.maximise}
-            aria-label={maximised ? labels.minimise : labels.maximise}
-            onClick={() => layout.toggleMaximise(stack.id)}
+            className="gl-control gl-maximize"
+            title={maximizeLabel}
+            aria-label={maximizeLabel}
+            onClick={() => layout.toggleMaximize(stack.id)}
           >
-            {maximised ? <MinimiseIcon /> : <MaximiseIcon />}
+            {maximized ? <MinimizeIcon /> : <MaximizeIcon />}
           </button>
         )}
         {settings.showCloseIcon && stackClosable && (
           <button
             type="button"
             className="gl-control gl-close"
-            title={labels.close}
-            aria-label={labels.close}
+            title={labels.closeStack}
+            aria-label={labels.closeStack}
             onClick={() => layout.closeItem(stack.id)}
           >
             <CloseIcon />

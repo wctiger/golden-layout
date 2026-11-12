@@ -161,10 +161,10 @@ describe('tidying after removals', () => {
     expect(row.children.map((child) => child.size)).toEqual([2, 0.5, 1.5]);
   });
 
-  it('clears maximise and selection when their item disappears', () => {
-    const layout = createLayout({ ...twoStacks, maximisedId: 'right', selectedId: 'right' });
+  it('clears maximize and selection when their item disappears', () => {
+    const layout = createLayout({ ...twoStacks, maximizedId: 'right', selectedId: 'right' });
     layout.removeItem('d');
-    expect(layout.getState()).toMatchObject({ maximisedId: null, selectedId: null });
+    expect(layout.getState()).toMatchObject({ maximizedId: null, selectedId: null });
   });
 
   it('honours closable: closeItem is a no-op, removeItem is not', () => {
@@ -189,6 +189,37 @@ describe('tidying after removals', () => {
   });
 });
 
+describe('closing several items at once', () => {
+  it('closes them as one change and tidies once', () => {
+    const layout = createLayout(twoStacks);
+    const actions: string[] = [];
+    layout.subscribe((_state, action) => actions.push(action.type));
+
+    layout.closeItems(['a', 'b', 'c']);
+
+    expect(actions).toEqual(['closeItems']);
+    expect(layout.getState().root?.id).toBe('right');
+  });
+
+  it('skips items that are not closable and keeps their stack', () => {
+    const layout = createLayout(twoStacks);
+    layout.updateItem('b', { closable: false });
+    layout.closeItems(['a', 'b', 'c']);
+    expect(ids(layout.getById('left'))).toEqual(['b']);
+  });
+
+  it('changes nothing when there is nothing to close, and rejects unknown ids', () => {
+    const layout = createLayout(twoStacks);
+    layout.updateItem('d', { closable: false });
+    const before = layout.getState();
+    layout.closeItems(['d']);
+    layout.closeItems([]);
+    expect(layout.getState()).toBe(before);
+    expect(() => layout.closeItems(['a', 'ghost'])).toThrow(LayoutError);
+    expect(layout.getState()).toBe(before);
+  });
+});
+
 describe('other actions', () => {
   it('resizes the children of a row and validates the sizes', () => {
     const layout = createLayout(twoStacks);
@@ -199,15 +230,15 @@ describe('other actions', () => {
     expect(() => layout.resize('left', [1, 1, 1])).toThrow(LayoutError);
   });
 
-  it('maximises the stack of a panel and restores it', () => {
+  it('maximizes the stack of a panel and restores it', () => {
     const layout = createLayout(twoStacks);
-    layout.toggleMaximise('a');
-    expect(layout.getState().maximisedId).toBe('left');
-    layout.toggleMaximise('left');
-    expect(layout.getState().maximisedId).toBeNull();
-    layout.maximise('right');
+    layout.toggleMaximize('a');
+    expect(layout.getState().maximizedId).toBe('left');
+    layout.toggleMaximize('left');
+    expect(layout.getState().maximizedId).toBeNull();
+    layout.maximize('right');
     layout.restore();
-    expect(layout.getState().maximisedId).toBeNull();
+    expect(layout.getState().maximizedId).toBeNull();
   });
 
   it('selects and deselects items', () => {

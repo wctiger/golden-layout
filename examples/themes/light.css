@@ -24,4 +24,6 @@
   --gl-menu-background: #fafafa;
   --gl-menu-border: 1px solid #cccccc;
   --gl-menu-hover-background: #e1e1e1;
+  --gl-scrollbar-thumb: #bbbbbb;
+  --gl-scrollbar-thumb-hover: #999999;
 }

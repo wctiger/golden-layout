@@ -70,7 +70,7 @@ install({
   openPanel: (stackId, panelId) => void layout!.addItem(panel(panelId), { parent: stackId }),
   closePanel: (panelId) => layout!.removeItem(panelId),
   activate: (panelId) => layout!.setActive(panelId),
-  toggleMaximise: (stackId) => layout!.toggleMaximise(stackId),
+  toggleMaximise: (stackId) => layout!.toggleMaximize(stackId),
   serialize: () => JSON.stringify(layout!.getState()).length,
   splitterPoint: () => centre(document.querySelector('.gl-row > .gl-splitter')!),
   tabPoint: (panelId) => centre(document.querySelector(`.gl-tab[data-panel-id="${panelId}"]`)!),

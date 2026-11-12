@@ -86,8 +86,12 @@ describe('tab interaction', () => {
   });
 
   it('uses the labels for the controls', async () => {
-    const { root } = await mountLayout(config, { labels: { maximise: 'grow' } });
-    expect(root.querySelector('.gl-control.gl-maximise')?.getAttribute('title')).toBe('grow');
-    expect(tab(root, 'one').querySelector('.gl-tab-close')?.getAttribute('title')).toBe('close');
+    const { root } = await mountLayout(config, { labels: { maximize: 'grow' } });
+    expect(root.querySelector('.gl-control.gl-maximize')?.getAttribute('title')).toBe(
+      'grow testComponent',
+    );
+    expect(tab(root, 'one').querySelector('.gl-tab-close')?.getAttribute('title')).toBe(
+      'close testComponent',
+    );
   });
 });

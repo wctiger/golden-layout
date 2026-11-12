@@ -91,7 +91,7 @@ export class LayoutView {
         target = this.dragOverride!.element;
       } else {
         const stack = index.get(panelId)?.parent;
-        const covered = state.maximisedId !== null && state.maximisedId !== stack?.id;
+        const covered = state.maximizedId !== null && state.maximizedId !== stack?.id;
         if (stack?.type === 'stack' && stack.activeId === panelId && !covered) {
           target = this.slots.get(stack.id);
         }
