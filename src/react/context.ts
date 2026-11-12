@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react';
 import type { ComponentType } from 'react';
 import type { Labels, Settings } from '../settings';
 import type { Layout } from '../store';
+import type { DragController } from './drag/DragController';
 import type { LayoutView } from './view';
 
 /** Maps the `component` name on a panel to the React component that renders it. */
@@ -11,6 +12,7 @@ export type ComponentRegistry = Record<string, ComponentType<any>>;
 export interface LayoutContextValue {
   layout: Layout;
   view: LayoutView;
+  drag: DragController;
   components: ComponentRegistry;
   settings: Settings;
   labels: Labels;

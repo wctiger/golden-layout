@@ -20,6 +20,9 @@ import type { ComponentRegistry, LayoutContextValue } from './context';
 import { useLayoutSelector } from './hooks';
 import { NodeView } from './NodeView';
 import { PanelLayer } from './PanelLayer';
+import { DragController } from './drag/DragController';
+import { DragOverlay } from './drag/DragOverlay';
+import { registerDragController } from './drag/useDragSource';
 import { LayoutView } from './view';
 
 export interface GoldenLayoutProps {
@@ -87,6 +90,7 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
     useImperativeHandle(ref, () => layout, [layout]);
 
     const view = useMemo(() => new LayoutView(layout.getState), [layout]);
+    const drag = useMemo(() => new DragController(layout, view), [layout, view]);
     const components = useShallowStable(props.components);
     const settings = useShallowStable(resolveSettings(props.settings));
     const labels = useShallowStable(resolveLabels(props.labels));
@@ -105,6 +109,17 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
       (element: HTMLDivElement | null) => view.setOverlay(element),
       [view],
     );
+    useLayoutEffect(() => {
+      drag.setSettings(settings);
+    }, [drag, settings]);
+    useEffect(() => {
+      const unregister = registerDragController(layout, drag);
+      return () => {
+        drag.cancel();
+        unregister();
+      };
+    }, [layout, drag]);
+
     const rootRef = useRef<HTMLDivElement | null>(null);
     useLayoutEffect(() => {
       view.setRoot(rootRef.current);
@@ -119,12 +134,13 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
       () => ({
         layout,
         view,
+        drag,
         components,
         settings,
         labels,
         onPanelError: (error, panelId) => callbacks.current.onPanelError?.(error, panelId),
       }),
-      [layout, view, components, settings, labels],
+      [layout, view, drag, components, settings, labels],
     );
 
     const className = props.className ? `gl-root ${props.className}` : 'gl-root';
@@ -133,7 +149,9 @@ export const GoldenLayout = forwardRef<Layout, GoldenLayoutProps>(
         <div className={className} style={props.style} ref={rootRef}>
           <Frame />
           <PanelLayer />
-          <div className="gl-overlay" ref={overlayRef} />
+          <div className="gl-overlay" ref={overlayRef}>
+            <DragOverlay />
+          </div>
           <Positioner />
         </div>
       </LayoutContext.Provider>

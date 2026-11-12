@@ -41,6 +41,10 @@ export class LayoutView {
     this.overlay = element;
   }
 
+  setDragOverride(override: { panelId: string; element: HTMLElement } | null): void {
+    this.dragOverride = override;
+  }
+
   setSlot(stackId: string, element: HTMLElement | null): void {
     const previous = this.slots.get(stackId);
     if (previous) this.observer?.unobserve(previous);
@@ -120,6 +124,8 @@ export class LayoutView {
       }
       style.display = '';
       style.position = dragged ? 'fixed' : '';
+      style.zIndex = dragged ? '1001' : '';
+      style.pointerEvents = dragged ? 'none' : '';
       style.left = `${box.left}px`;
       style.top = `${box.top}px`;
       style.width = `${box.width}px`;

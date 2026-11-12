@@ -1,5 +1,10 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
+import type {
+  KeyboardEvent,
+  MouseEvent,
+  PointerEvent as ReactPointerEvent,
+  ReactNode,
+} from 'react';
 import { createPortal } from 'react-dom';
 import type { PanelNode, StackNode } from '../model/types';
 import { useLayoutContext } from './context';
@@ -12,7 +17,7 @@ interface TabProps {
 }
 
 const Tab = memo(function Tab({ panel, active }: TabProps): ReactNode {
-  const { layout, labels, settings } = useLayoutContext();
+  const { layout, labels, settings, drag } = useLayoutContext();
   const closable = panel.closable !== false;
   const reorderable = settings.reorderEnabled && panel.reorderable !== false;
 
@@ -37,7 +42,9 @@ const Tab = memo(function Tab({ panel, active }: TabProps): ReactNode {
       data-panel-id={panel.id}
       data-reorderable={reorderable}
       onPointerDown={(event) => {
-        if (event.button === 0) layout.setActive(panel.id);
+        if (event.button !== 0) return;
+        layout.setActive(panel.id);
+        if (reorderable) drag.begin(event.nativeEvent, { kind: 'item', id: panel.id });
       }}
       onKeyDown={onKeyDown}
       onAuxClick={onAuxClick}
@@ -135,7 +142,7 @@ function revealTab(strip: HTMLElement, tab: HTMLElement): void {
 }
 
 export function Header({ stack }: { stack: StackNode }): ReactNode {
-  const { layout, settings, labels } = useLayoutContext();
+  const { layout, settings, labels, drag } = useLayoutContext();
   const maximised = useLayoutSelector((state) => state.maximisedId === stack.id);
   const stripRef = useRef<HTMLDivElement | null>(null);
   const [overflowing, setOverflowing] = useState(false);
@@ -167,6 +174,15 @@ export function Header({ stack }: { stack: StackNode }): ReactNode {
     }
   };
 
+  // Dragging the header's own background moves the whole stack.
+  const onPointerDown = (event: ReactPointerEvent): void => {
+    if (event.button !== 0 || !settings.reorderEnabled) return;
+    if (event.target !== event.currentTarget && event.target !== stripRef.current) return;
+    if (stack.children.length === 0 || layout.getState().root?.id === stack.id) return;
+    if (stack.children.some((panel) => panel.reorderable === false)) return;
+    drag.begin(event.nativeEvent, { kind: 'item', id: stack.id });
+  };
+
   const stackClosable =
     stack.closable !== false && stack.children.every((panel) => panel.closable !== false);
 
@@ -175,6 +191,7 @@ export function Header({ stack }: { stack: StackNode }): ReactNode {
       className={settings.selectionEnabled ? 'gl-header gl-selectable' : 'gl-header'}
       data-stack-id={stack.id}
       onClick={onClick}
+      onPointerDown={onPointerDown}
     >
       <div className="gl-tabs" role="tablist" ref={stripRef}>
         {stack.children.map((panel) => (
