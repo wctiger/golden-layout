@@ -15,16 +15,10 @@ compatible** with 1.x: see [Differences from 1.x](#differences-from-1x).
 - The layout is one serializable object. `JSON.stringify(layout)` saves it.
 - Styling is plain CSS custom properties. A theme is a block of variable overrides.
 
-## Install
+This React rewrite is unpublished. To run the demo or build the library from source, see
+[Development](#development).
 
-```sh
-npm install golden-layout
-```
-
-React and React DOM 18 or later are peer dependencies. The package is ESM only and ships its
-own types.
-
-## Quick start
+## Usage example
 
 ```tsx
 import { GoldenLayout } from 'golden-layout';
@@ -415,8 +409,7 @@ overrides:
 ```
 
 Switching themes is swapping that class; nothing re-renders. Four example themes (dark, light,
-soda and translucent, ported from 1.x) are in [`examples/themes`](./examples/themes). They are
-examples to copy, not part of the published package.
+soda and translucent, ported from 1.x) are in [`examples/themes`](./examples/themes). Copy one as a starting point for your own theme.
 
 All class names use the `gl-` prefix.
 
