@@ -25,7 +25,7 @@ jobs:
       - run: npm run build:examples
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: examples/demo/dist
+          path: examples/dist
 
   deploy:
     needs: build

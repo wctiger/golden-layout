@@ -35,10 +35,10 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "dev": "vp dev examples/demo",
-    "dev:trading": "vp dev examples/trading",
+    "dev": "vp dev examples/trading",
+    "dev:simple": "vp dev examples/simple",
     "build": "vp pack",
-    "build:examples": "vp build examples/demo --base ./ && vp build examples/trading --base ./ --outDir ../demo/dist/trading --emptyOutDir",
+    "build:examples": "vp build examples/trading --base ./ --outDir ../dist --emptyOutDir && vp build examples/simple --base ./ --outDir ../dist/simple --emptyOutDir",
     "test": "vp test run",
     "check": "vp check",
     "check:fix": "vp check --fix",

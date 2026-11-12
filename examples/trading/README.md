@@ -7,7 +7,7 @@ FX quote tiles, an order blotter, positions, a candle chart, a watchlist, a pric
 correlation matrix, a volatility surface, a technical-signals grid and a news feed.
 
 ```sh
-npm run dev:trading
+npm run dev
 ```
 
 ## What changed in the port
