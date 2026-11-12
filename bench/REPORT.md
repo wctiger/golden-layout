@@ -448,6 +448,13 @@ takes longer to settle, not a leak:
 The 50-cycle scenario in the main tables catches the rewrite before it has settled, which is
 why it reads as worse there. This check is a single run per version.
 
+## Decision on the missed target
+
+The plan asks for each missed target to be fixed or explicitly accepted. The splitter was fixed.
+The 12 cells that remain more than 10% slower (shared-data updates, maximise at 16 and 64 panels,
+and the 50-cycle memory figure) were reviewed with their causes above and accepted as documented
+by the repository owner on 2026-11-12.
+
 ## Deviations from the plan
 
 - **Primary metric.** The plan named script, layout and style time. Their sum counts a layout
