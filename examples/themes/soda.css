@@ -1,0 +1,29 @@
+/* Soda theme: variable overrides only. Apply with className="gl-theme-soda". */
+.gl-theme-soda.gl-root,
+.gl-theme-soda .gl-root {
+  --gl-header-height: 28px;
+  --gl-tab-radius: 4px;
+  --gl-background: linear-gradient(#000000, #2b2b2b);
+  --gl-content-background: #272822;
+  --gl-content-text: #eeeeee;
+  --gl-header-background: linear-gradient(#3c3c3c, #2a2a2a);
+  --gl-header-selected-background: #452500;
+  --gl-tab-background: linear-gradient(#4a4a4a, #383838);
+  --gl-tab-text: #999999;
+  --gl-tab-hover-background: linear-gradient(#555555, #404040);
+  --gl-tab-active-background: linear-gradient(#3a3b34, #272822);
+  --gl-tab-active-text: #eeeeee;
+  --gl-control-color: #eeeeee;
+  --gl-control-opacity: 0.4;
+  --gl-control-hover-background: rgba(255, 255, 255, 0.15);
+  --gl-splitter-hover-background: #444444;
+  --gl-drop-indicator-background: rgba(0, 0, 0, 0.2);
+  --gl-drop-indicator-border: 1px dashed #cccccc;
+  --gl-drop-indicator-shadow: inset 0 0 30px #000000;
+  --gl-drag-proxy-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+  --gl-menu-background: #272822;
+  --gl-menu-text: #eeeeee;
+  --gl-menu-border: 1px solid #555555;
+  --gl-menu-hover-background: #3a3b34;
+  --gl-focus-ring: 2px solid #a6e22e;
+}

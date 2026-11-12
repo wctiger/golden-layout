@@ -245,7 +245,7 @@ describe('tab overflow', () => {
             title: `A fairly long tab title ${i}`,
           })),
         },
-        { ...probe('other'), size: 3 },
+        { ...probe('other'), size: 1 },
       ],
     },
   };

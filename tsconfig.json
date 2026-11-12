@@ -14,7 +14,7 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": []
+    "types": ["node"]
   },
   "include": ["src", "tests", "examples", "bench", "vite.config.ts"],
   "exclude": ["bench/legacy/vendor", "dist", "node_modules"]

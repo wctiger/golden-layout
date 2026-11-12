@@ -1,19 +1,91 @@
 /*
- * golden-layout base styles.
+ * golden-layout base stylesheet.
  *
- * Structure only, plus neutral defaults. Every colour and dimension is a custom property
- * declared on .gl-root, so a theme is a block of overrides and nothing else.
+ * Everything that can be themed is a custom property declared on .gl-root below, with a
+ * neutral default. A theme is a rule that overrides some of them and contains nothing
+ * else: see examples/themes for four of them.
+ *
+ * The defaults sit in :where() so they have no specificity and any theme selector wins.
  */
 
-.gl-root {
+:where(.gl-root) {
+  /* Typography */
+  --gl-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --gl-font-size: 13px;
+
+  /* Dimensions */
+  --gl-header-height: 26px;
+  --gl-tab-padding: 10px;
+  --gl-tab-gap: 1px;
+  --gl-tab-radius: 0px;
+  --gl-tab-max-width: 240px;
+  --gl-control-size: 20px;
+  --gl-splitter-size: 5px;
+  --gl-splitter-grab-size: 15px;
   --gl-min-item-width: 40px;
   --gl-min-item-height: 40px;
+  --gl-drag-proxy-width: 300px;
+  --gl-drag-proxy-height: 200px;
 
+  /* Layout background, visible through splitters and empty space */
+  --gl-background: #d4d4d4;
+
+  /* Panel area */
+  --gl-content-background: #ffffff;
+  --gl-content-text: #1f1f1f;
+  --gl-content-border: none;
+  --gl-content-shadow: none;
+
+  /* Headers and tabs */
+  --gl-header-background: #e8e8e8;
+  --gl-header-selected-background: #c5dcf7;
+  --gl-tab-background: transparent;
+  --gl-tab-text: #5a5a5a;
+  --gl-tab-border: none;
+  --gl-tab-shadow: none;
+  --gl-tab-hover-background: #dcdcdc;
+  --gl-tab-active-background: #ffffff;
+  --gl-tab-active-text: #1f1f1f;
+  --gl-tab-active-shadow: none;
+
+  /* Header buttons */
+  --gl-control-color: #5a5a5a;
+  --gl-control-opacity: 0.6;
+  --gl-control-hover-background: rgba(0, 0, 0, 0.1);
+
+  /* Splitters */
+  --gl-splitter-background: transparent;
+  --gl-splitter-hover-background: #8f8f8f;
+
+  /* Drag and drop */
+  --gl-drop-indicator-background: rgba(0, 0, 0, 0.1);
+  --gl-drop-indicator-border: 1px dashed rgba(0, 0, 0, 0.45);
+  --gl-drop-indicator-shadow: none;
+  --gl-drag-proxy-opacity: 0.92;
+  --gl-drag-proxy-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+
+  /* Tab overflow menu */
+  --gl-menu-background: #ffffff;
+  --gl-menu-text: #1f1f1f;
+  --gl-menu-border: 1px solid #b5b5b5;
+  --gl-menu-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --gl-menu-hover-background: #e8e8e8;
+
+  /* Keyboard focus */
+  --gl-focus-ring: 2px solid #3b82d6;
+}
+
+/* ---- Root and layers ---- */
+
+.gl-root {
   position: relative;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background: var(--gl-background);
+  font-family: var(--gl-font-family);
+  font-size: var(--gl-font-size);
 }
 
 .gl-frame {
@@ -22,9 +94,18 @@
   display: flex;
 }
 
+.gl-panels,
+.gl-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 .gl-empty {
   flex: 1 1 0;
 }
+
+/* ---- Rows, columns and stacks ---- */
 
 .gl-row,
 .gl-column,
@@ -32,6 +113,8 @@
   display: flex;
   flex: 1 1 0;
   box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
 }
 
 .gl-row {
@@ -49,48 +132,6 @@
   overflow: hidden;
 }
 
-.gl-stack-content {
-  position: relative;
-  flex: 1 1 0;
-  min-width: 0;
-  min-height: 0;
-}
-
-.gl-panels {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.gl-panel {
-  position: absolute;
-  box-sizing: border-box;
-  overflow: auto;
-  pointer-events: auto;
-}
-
-.gl-panel-error {
-  padding: 8px;
-  font:
-    13px/1.4 system-ui,
-    sans-serif;
-  white-space: pre-wrap;
-}
-
-/* ---- Phase 4 structure: headers, tabs, splitters ---- */
-
-.gl-root {
-  --gl-header-height: 26px;
-  --gl-splitter-size: 5px;
-  --gl-splitter-grab-size: 15px;
-}
-
-.gl-row,
-.gl-column {
-  min-width: 0;
-  min-height: 0;
-}
-
 .gl-stack[data-header='bottom'] {
   flex-direction: column-reverse;
 }
@@ -103,26 +144,63 @@
   flex-direction: row-reverse;
 }
 
+.gl-stack-content {
+  position: relative;
+  flex: 1 1 0;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  background: var(--gl-content-background);
+  border: var(--gl-content-border);
+  box-shadow: var(--gl-content-shadow);
+}
+
+/* ---- Panels ---- */
+
+.gl-panel {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: auto;
+  color: var(--gl-content-text);
+  pointer-events: auto;
+}
+
+.gl-panel-error {
+  padding: 8px;
+  white-space: pre-wrap;
+}
+
+/* ---- Headers and tabs ---- */
+
 .gl-header {
   display: flex;
   flex: none;
   box-sizing: border-box;
-  height: var(--gl-header-height);
+  block-size: var(--gl-header-height);
   min-width: 0;
   min-height: 0;
+  background: var(--gl-header-background);
   user-select: none;
 }
 
+/* Logical sizes above and below let the same rules serve a header on the side. */
 .gl-stack[data-header='left'] > .gl-header,
 .gl-stack[data-header='right'] > .gl-header {
-  width: var(--gl-header-height);
-  height: auto;
   writing-mode: vertical-rl;
+}
+
+.gl-header.gl-selectable {
+  cursor: pointer;
+}
+
+.gl-stack.gl-selected > .gl-header {
+  background: var(--gl-header-selected-background);
 }
 
 .gl-tabs {
   display: flex;
   flex: 1 1 0;
+  gap: var(--gl-tab-gap);
   min-width: 0;
   min-height: 0;
   overflow: hidden;
@@ -132,15 +210,52 @@
   display: flex;
   flex: none;
   align-items: center;
+  gap: 6px;
   box-sizing: border-box;
+  padding-inline: var(--gl-tab-padding);
+  border: var(--gl-tab-border);
+  border-start-start-radius: var(--gl-tab-radius);
+  border-start-end-radius: var(--gl-tab-radius);
+  background: var(--gl-tab-background);
+  box-shadow: var(--gl-tab-shadow);
+  color: var(--gl-tab-text);
   cursor: pointer;
   white-space: nowrap;
+}
+
+.gl-tab[data-reorderable='true'] {
+  touch-action: none;
+}
+
+.gl-tab:hover {
+  background: var(--gl-tab-hover-background);
+}
+
+.gl-tab.gl-active {
+  background: var(--gl-tab-active-background);
+  box-shadow: var(--gl-tab-active-shadow);
+  color: var(--gl-tab-active-text);
+}
+
+.gl-tab:focus-visible,
+.gl-control:focus-visible,
+.gl-tab-close:focus-visible {
+  outline: var(--gl-focus-ring);
+  outline-offset: -2px;
+}
+
+.gl-title {
+  max-inline-size: var(--gl-tab-max-width);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .gl-controls {
   display: flex;
   flex: none;
   align-items: center;
+  gap: 2px;
+  padding-inline: 4px;
 }
 
 .gl-control,
@@ -151,17 +266,75 @@
   justify-content: center;
   padding: 0;
   border: 0;
+  border-radius: 3px;
   background: none;
-  color: inherit;
+  color: var(--gl-control-color);
   font: inherit;
+  opacity: var(--gl-control-opacity);
   cursor: pointer;
 }
+
+.gl-control {
+  inline-size: var(--gl-control-size);
+  block-size: var(--gl-control-size);
+}
+
+.gl-tab-close {
+  inline-size: 16px;
+  block-size: 16px;
+  color: inherit;
+}
+
+.gl-control:hover,
+.gl-tab-close:hover {
+  background: var(--gl-control-hover-background);
+  opacity: 1;
+}
+
+/* ---- Tab overflow menu ---- */
+
+.gl-tab-menu {
+  position: absolute;
+  z-index: 2;
+  max-height: 60%;
+  margin: 0;
+  padding: 4px 0;
+  overflow: auto;
+  list-style: none;
+  background: var(--gl-menu-background);
+  border: var(--gl-menu-border);
+  box-shadow: var(--gl-menu-shadow);
+  color: var(--gl-menu-text);
+  pointer-events: auto;
+}
+
+.gl-tab-menu > li {
+  padding: 4px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.gl-tab-menu > li:hover {
+  background: var(--gl-menu-hover-background);
+}
+
+.gl-tab-menu > li.gl-active {
+  font-weight: 600;
+}
+
+/* ---- Splitters ---- */
 
 .gl-splitter {
   position: relative;
   z-index: 1;
   flex: none;
+  background: var(--gl-splitter-background);
   touch-action: none;
+}
+
+.gl-splitter:hover,
+.gl-splitter.gl-dragging {
+  background: var(--gl-splitter-hover-background);
 }
 
 .gl-row > .gl-splitter {
@@ -188,50 +361,21 @@
 }
 
 .gl-column > .gl-splitter::before {
-  left: 0;
   right: 0;
+  left: 0;
   top: calc((var(--gl-splitter-size) - var(--gl-splitter-grab-size)) / 2);
   height: var(--gl-splitter-grab-size);
 }
 
-.gl-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.gl-overlay > * {
-  pointer-events: auto;
-}
-
-.gl-tab-menu {
-  position: absolute;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  max-height: 60%;
-  overflow: auto;
-  background: Canvas;
-  color: CanvasText;
-  border: 1px solid GrayText;
-}
-
-.gl-tab-menu > li {
-  padding: 4px 10px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* ---- Phase 5 structure: drag and drop ---- */
-
-.gl-root {
-  --gl-drag-proxy-width: 300px;
-  --gl-drag-proxy-height: 200px;
-}
+/* ---- Drag and drop ---- */
 
 .gl-drop-indicator {
   position: absolute;
+  z-index: 1;
   box-sizing: border-box;
+  background: var(--gl-drop-indicator-background);
+  border: var(--gl-drop-indicator-border);
+  box-shadow: var(--gl-drop-indicator-shadow);
   pointer-events: none;
 }
 
@@ -242,6 +386,8 @@
   flex-direction: column;
   width: var(--gl-drag-proxy-width);
   height: var(--gl-drag-proxy-height);
+  box-shadow: var(--gl-drag-proxy-shadow);
+  opacity: var(--gl-drag-proxy-opacity);
   pointer-events: none;
 }
 
@@ -249,18 +395,16 @@
   display: flex;
   flex: none;
   height: var(--gl-header-height);
+  background: var(--gl-header-background);
 }
 
 .gl-drag-proxy-content {
   flex: 1 1 0;
   min-height: 0;
+  background: var(--gl-content-background);
 }
 
 .gl-root.gl-dragging,
 .gl-root.gl-dragging * {
   cursor: move;
-}
-
-.gl-tab[data-reorderable='true'] {
-  touch-action: none;
 }

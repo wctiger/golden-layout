@@ -135,10 +135,15 @@ function TabMenu({ stack, anchor, onClose }: TabMenuProps): ReactNode {
 function revealTab(strip: HTMLElement, tab: HTMLElement): void {
   const stripRect = strip.getBoundingClientRect();
   const tabRect = tab.getBoundingClientRect();
-  if (tabRect.left < stripRect.left) strip.scrollLeft -= stripRect.left - tabRect.left;
-  else if (tabRect.right > stripRect.right) strip.scrollLeft += tabRect.right - stripRect.right;
-  if (tabRect.top < stripRect.top) strip.scrollTop -= stripRect.top - tabRect.top;
-  else if (tabRect.bottom > stripRect.bottom) strip.scrollTop += tabRect.bottom - stripRect.bottom;
+  // The leading edge wins when the tab is larger than the strip.
+  if (tabRect.right > stripRect.right) strip.scrollLeft += tabRect.right - stripRect.right;
+  if (tabRect.left - Math.max(0, tabRect.right - stripRect.right) < stripRect.left) {
+    strip.scrollLeft -= stripRect.left - tab.getBoundingClientRect().left;
+  }
+  if (tabRect.bottom > stripRect.bottom) strip.scrollTop += tabRect.bottom - stripRect.bottom;
+  if (tabRect.top - Math.max(0, tabRect.bottom - stripRect.bottom) < stripRect.top) {
+    strip.scrollTop -= stripRect.top - tab.getBoundingClientRect().top;
+  }
 }
 
 export function Header({ stack }: { stack: StackNode }): ReactNode {
